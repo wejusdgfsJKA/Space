@@ -50,6 +50,7 @@ namespace Player
         /// <exception cref="System.NotImplementedException"></exception>
         public void OnMouseLook(InputAction.CallbackContext context)
         {
+            //nothing
         }
 
         public void OnFreeLookToggle(InputAction.CallbackContext context)
