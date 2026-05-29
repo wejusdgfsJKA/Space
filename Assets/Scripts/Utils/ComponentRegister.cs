@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Utilities
 {
-    public static class ComponentRegister<T> where T : Component
+    public static class ComponentRegister<T> where T : class
     {
         static Dictionary<Transform, T> storage = new();
         public static T Get(Transform transform)

@@ -127,6 +127,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""5b6826c9-23de-415b-9d2d-06ae97bee3fa"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Reset"",
+                    ""type"": ""Button"",
+                    ""id"": ""be82f18c-0cbb-475e-8d74-747bd1286fdf"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -221,7 +239,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""negative"",
                     ""id"": ""8ed7183b-b482-42ac-ae47-5a2230e310d7"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -232,7 +250,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""positive"",
                     ""id"": ""16f91a20-556d-424a-be3a-650c6c3f66ee"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -254,11 +272,55 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""61ff89da-e859-48dc-9e07-d906466bfae6"",
-                    ""path"": ""<Keyboard>/alt"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""FreeLookToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""8df2a9b8-2f65-4637-91ba-4f86c7b2be97"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""811c652f-6d67-4532-9012-6f64915eff98"",
+                    ""path"": ""<Mouse>/scroll/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""d7cda269-2496-4d70-8bd4-f118444b978c"",
+                    ""path"": ""<Mouse>/scroll/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7576dbd0-501a-4324-a0b3-b7d1f1d3bbe1"",
+                    ""path"": ""<Keyboard>/capsLock"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reset"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -273,6 +335,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_BasicControls_Roll = m_BasicControls.FindAction("Roll", throwIfNotFound: true);
         m_BasicControls_MouseLook = m_BasicControls.FindAction("MouseLook", throwIfNotFound: true);
         m_BasicControls_FreeLookToggle = m_BasicControls.FindAction("FreeLookToggle", throwIfNotFound: true);
+        m_BasicControls_Zoom = m_BasicControls.FindAction("Zoom", throwIfNotFound: true);
+        m_BasicControls_Reset = m_BasicControls.FindAction("Reset", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -357,6 +421,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_BasicControls_Roll;
     private readonly InputAction m_BasicControls_MouseLook;
     private readonly InputAction m_BasicControls_FreeLookToggle;
+    private readonly InputAction m_BasicControls_Zoom;
+    private readonly InputAction m_BasicControls_Reset;
     /// <summary>
     /// Provides access to input actions defined in input action map "BasicControls".
     /// </summary>
@@ -384,6 +450,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "BasicControls/FreeLookToggle".
         /// </summary>
         public InputAction @FreeLookToggle => m_Wrapper.m_BasicControls_FreeLookToggle;
+        /// <summary>
+        /// Provides access to the underlying input action "BasicControls/Zoom".
+        /// </summary>
+        public InputAction @Zoom => m_Wrapper.m_BasicControls_Zoom;
+        /// <summary>
+        /// Provides access to the underlying input action "BasicControls/Reset".
+        /// </summary>
+        public InputAction @Reset => m_Wrapper.m_BasicControls_Reset;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -422,6 +496,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FreeLookToggle.started += instance.OnFreeLookToggle;
             @FreeLookToggle.performed += instance.OnFreeLookToggle;
             @FreeLookToggle.canceled += instance.OnFreeLookToggle;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
+            @Reset.started += instance.OnReset;
+            @Reset.performed += instance.OnReset;
+            @Reset.canceled += instance.OnReset;
         }
 
         /// <summary>
@@ -445,6 +525,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FreeLookToggle.started -= instance.OnFreeLookToggle;
             @FreeLookToggle.performed -= instance.OnFreeLookToggle;
             @FreeLookToggle.canceled -= instance.OnFreeLookToggle;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
+            @Reset.started -= instance.OnReset;
+            @Reset.performed -= instance.OnReset;
+            @Reset.canceled -= instance.OnReset;
         }
 
         /// <summary>
@@ -513,5 +599,19 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFreeLookToggle(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZoom(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Reset" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnReset(InputAction.CallbackContext context);
     }
 }

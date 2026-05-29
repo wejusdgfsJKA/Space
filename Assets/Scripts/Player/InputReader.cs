@@ -10,8 +10,8 @@ namespace Player
         public PlayerControls inputActions;
         public Vector2 LookDelta => inputActions.BasicControls.MouseLook.ReadValue<Vector2>();
         public event UnityAction<Vector3> MoveEvent = delegate { };
-        public event UnityAction<float> RollEvent = delegate { }, FreeLookToggleEvent = delegate { };
-
+        public event UnityAction<float> RollEvent = delegate { }, FreeLookToggleEvent = delegate { }, ZoomEvent = delegate { };
+        public event UnityAction ResetEvent = delegate { };
         public void EnablePlayerActions()
         {
             inputActions ??= new PlayerControls();
@@ -26,19 +26,18 @@ namespace Player
                 inputActions.BasicControls.SetCallbacks(null);
                 inputActions.Disable();
                 MoveEvent = null;
-                RollEvent = FreeLookToggleEvent = null;
+                ResetEvent = null;
+                RollEvent = FreeLookToggleEvent = ZoomEvent = null;
             }
         }
 
         public void OnMove(InputAction.CallbackContext context)
         {
-            Debug.Log(context.ReadValue<Vector3>());
             MoveEvent?.Invoke(context.ReadValue<Vector3>());
         }
 
         public void OnRoll(InputAction.CallbackContext context)
         {
-            Debug.Log(context.ReadValue<float>());
             RollEvent?.Invoke(context.ReadValue<float>());
         }
 
@@ -55,8 +54,16 @@ namespace Player
 
         public void OnFreeLookToggle(InputAction.CallbackContext context)
         {
-            Debug.Log(context.ReadValue<float>());
             FreeLookToggleEvent?.Invoke(context.ReadValue<float>());
+        }
+
+        public void OnZoom(InputAction.CallbackContext context)
+        {
+            ZoomEvent?.Invoke(context.ReadValue<float>());
+        }
+        public void OnReset(InputAction.CallbackContext context)
+        {
+            ResetEvent?.Invoke();
         }
     }
 }
