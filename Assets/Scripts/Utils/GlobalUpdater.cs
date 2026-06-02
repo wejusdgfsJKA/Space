@@ -2,23 +2,13 @@ using System;
 using UnityEngine;
 namespace Utilities
 {
-    public sealed class GlobalUpdater : MonoBehaviour
+    public sealed class GlobalUpdater : Singleton<GlobalUpdater>
     {
         Action<float> update = delegate { }, lateUpdate = delegate { }, fixedUpdate = delegate { };
-        public static GlobalUpdater Instance { get; private set; }
-        private void Awake()
-        {
-            if (Instance != null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-        private void OnDestroy()
+        protected override void ClearSingleton()
         {
             update = fixedUpdate = lateUpdate = null;
-            Instance = null;
+            base.ClearSingleton();
         }
         public void RegisterUpdate(Action<float> action) => update += action;
         public void UnregisterUpdate(Action<float> action) => update -= action;

@@ -16,5 +16,7 @@ MonoBehaviour:
   AlwaysCheck: 1
   Conditions: []
   Services: []
-  Key: 0
-  Radius: 3
+  TargetKey: 0
+  StopDistance: 0.5
+  Radius: 10
+  TargetErrorThreshold: 1

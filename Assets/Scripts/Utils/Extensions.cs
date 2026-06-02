@@ -23,11 +23,11 @@ namespace Utilities
         }
 
         #region Transform
-        public static T GetComponentViaRegister<T>(this Transform transform) where T : Component
+        public static T GetComponentViaRegister<T>(this Transform transform) where T : Component, IRegisterableComponent
         {
             return ComponentRegister<T>.Get(transform);
         }
-        public static T GetOrAddComponent<T>(this Transform transform) where T : Component
+        public static T GetOrAddRegisterableComponent<T>(this Transform transform) where T : Component, IRegisterableComponent
         {
             T component = ComponentRegister<T>.Get(transform);
             if (component == null)
@@ -38,6 +38,19 @@ namespace Utilities
                     component = transform.gameObject.AddComponent<T>();
                 }
                 ComponentRegister<T>.Register(transform, component);
+            }
+            return component;
+        }
+        public static T GetOrAddComponent<T>(this Transform transform) where T : Component
+        {
+            T component = transform.GetComponent<T>();
+            if (component == null)
+            {
+                component = transform.GetComponent<T>();
+                if (component == null)
+                {
+                    component = transform.gameObject.AddComponent<T>();
+                }
             }
             return component;
         }

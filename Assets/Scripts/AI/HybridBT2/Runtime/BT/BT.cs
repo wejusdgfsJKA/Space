@@ -5,7 +5,7 @@ namespace HybridBT2
     /// <summary>
     /// Base behaviour tree class. Contains a blackboard and root node.
     /// </summary>
-    /// <typeparam name="T">Key data type.</typeparam>
+    /// <typeparam name="T">TargetKey data type.</typeparam>
     public abstract class BT : MonoBehaviour, IResettable
     {
         protected Blackboard blackboard;

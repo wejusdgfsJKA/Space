@@ -6,7 +6,8 @@ namespace HybridBT2
     {
         public enum Keys
         {
-            Target
+            Target,
+            Launchers
         }
         public readonly Transform Transform;
         public readonly Navigation Navigation;

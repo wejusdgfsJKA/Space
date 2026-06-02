@@ -1,13 +1,13 @@
 ﻿using HybridBT2;
 using UnityEngine;
-
+using Weapons;
 public class BanditTree : BT
 {
-    public Transform target;
     public void SetTarget(Transform target) => blackboard.SetData(Blackboard.Keys.Target, target);
 
     protected override void SetupBlackboard()
     {
-        SetTarget(target);
+        var launchers = GetComponentsInChildren<MissileLauncher>();
+        blackboard.SetData(Blackboard.Keys.Launchers, launchers);
     }
 }
