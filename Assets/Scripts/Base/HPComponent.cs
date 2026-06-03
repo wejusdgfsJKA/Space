@@ -4,7 +4,7 @@ namespace HP
 {
     public class HPComponent : MonoBehaviour
     {
-        public float MaxHP;
+        [field: SerializeField] public float MaxHP { get; set; }
         float CurrentHP;
         private void Awake()
         {
@@ -27,7 +27,7 @@ namespace HP
             CurrentHP -= damageInfo.Amount;
             if (CurrentHP <= 0)
             {
-                Destroy(gameObject);
+                gameObject.SetActive(false);
             }
         }
         private void OnDestroy()

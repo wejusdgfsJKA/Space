@@ -28,27 +28,21 @@ namespace Weapons
         /// <summary>
         /// Reset the ammo, cooldown and cast block index of the weapon.
         /// </summary>
-        public void PerformReset()
+        public virtual void PerformReset()
         {
             shotTimer.Reset();
             Firing = false;
         }
-        protected void OnDestroy()
+        protected virtual void OnDestroy()
         {
             shotTimer.Dispose();
         }
         #endregion
 
         #region Functionality
-        public void StartFiring() => Firing = true;
-        public void StopFiring() => Firing = false;
         public virtual void AimAt(Transform target)
         {
             transform.LookAt(target);
-        }
-        protected void Update()
-        {
-            if (Firing) Shoot();
         }
         public virtual bool CanShoot()
         {

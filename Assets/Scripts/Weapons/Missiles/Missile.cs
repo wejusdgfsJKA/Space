@@ -1,7 +1,9 @@
+using HP;
 using Pooling;
 using UnityEngine;
 namespace Weapons
 {
+    [RequireComponent(typeof(HPComponent))]
     public class Missile : Bullet
     {
         protected Transform target;
@@ -24,6 +26,7 @@ namespace Weapons
         protected float tracking, speed;
         protected LayerMask collisionMask = 1 << 0 | 1 << 6;
         public int Index { get; set; }
+        [SerializeField] protected HPComponent hpComponent;
         public override void Initialize<T>(MonoPoolableData<T> poolableData)
         {
             base.Initialize(poolableData);
@@ -33,6 +36,7 @@ namespace Weapons
             }
             tracking = missileData.Tracking;
             speed = missileData.Speed;
+            hpComponent.MaxHP = missileData.HP;
         }
         protected override void OnDisable()
         {

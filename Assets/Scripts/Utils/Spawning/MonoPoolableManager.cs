@@ -8,6 +8,7 @@ namespace Pooling
         public enum Keys
         {
             MissileBasic,
+            LaserBasic,
             Bandit1
         }
         readonly ObjectPool<Keys, MonoBehaviour> pool = new();

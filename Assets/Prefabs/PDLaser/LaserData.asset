@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 916cf2d17c3d29646931fe2a405be942, type: 3}
-  m_Name: MissileData
-  m_EditorClassIdentifier: Assembly-CSharp::Weapons.MissileData
-  Key: 0
-  Prefab: {fileID: 8799911408726508642, guid: cd7ab4f9d57d54245bf0bc17eb36e50b, type: 3}
-  DisableOnHit: 1
+  m_Script: {fileID: 11500000, guid: f54146df32422b04c8f0d5c4bfe6851e, type: 3}
+  m_Name: LaserData
+  m_EditorClassIdentifier: Assembly-CSharp::Weapons.LaserData
+  Key: 1
+  Prefab: {fileID: 3964667719728751372, guid: 1e72d942cec8e874ebeac083fa79f2a0, type: 3}
+  DisableOnHit: 0
   Damage: 1
-  LifeTime: 20
+  LifeTime: 0.3
   SoundData:
     clip: {fileID: 0}
     mixerGroup: {fileID: 0}
@@ -40,5 +40,6 @@ MonoBehaviour:
     ignoreListenerVolume: 0
     ignoreListenerPause: 0
     rolloffMode: 0
-  Tracking: 1
-  Speed: 2
+  Color: {r: 1, g: 0, b: 0, a: 1}
+  Range: 10
+  Width: 0.1

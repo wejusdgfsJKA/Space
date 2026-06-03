@@ -3,7 +3,7 @@ using Pooling;
 using UnityEngine;
 namespace Weapons
 {
-    [CreateAssetMenu(menuName = "ScriptableObjects/Weapons/BulletData", fileName = "BulletData")]
+    [CreateAssetMenu(menuName = "Weapons/BulletData", fileName = "BulletData")]
     public class BulletData : MonoPoolableData<Bullet>
     {
         public bool DisableOnHit = true;
