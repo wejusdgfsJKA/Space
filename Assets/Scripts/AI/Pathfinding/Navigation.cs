@@ -1,7 +1,8 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using Utilities;
 [RequireComponent(typeof(Rigidbody))]
-public class Navigation : MonoBehaviour
+public class Navigation : MonoBehaviour, IVelocityProvider
 {
     [field: SerializeField] public bool DampenVelocityToZero { get; set; } = true;
     public void SetDestination(Vector3? destination) => Destination = destination;
@@ -18,8 +19,16 @@ public class Navigation : MonoBehaviour
     protected Rigidbody rb;
     [SerializeField] protected ObstacleChecker checker;
     [field: SerializeField] public bool UpdateRotation { get; set; } = true;
+
+
+    protected Vector3 angularVelocity;
+    public Vector3 AngularVelocity => angularVelocity;
+
+    public Vector3 LinearVelocity => rb != null ? rb.linearVelocity : Vector3.zero;
+
     protected void Awake()
     {
+        ComponentRegister<IVelocityProvider>.Register(transform, this);
         rb = gameObject.GetOrAddComponent<Rigidbody>();
         rb.isKinematic = false;
         rb.useGravity = false;
@@ -33,6 +42,15 @@ public class Navigation : MonoBehaviour
             Debug.LogWarning($"Created new nav pivot for {transform}.");
         }
         radAngleToForward = Mathf.Rad2Deg * angleToForward / 2;
+    }
+    private void OnEnable()
+    {
+        angularVelocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
+    }
+    protected void OnDestroy()
+    {
+        ComponentRegister<IVelocityProvider>.Unregister(transform);
     }
     void ApplyDampeners(Vector3 intendedVelocity, float deltaTime)
     {
@@ -64,8 +82,17 @@ public class Navigation : MonoBehaviour
     }
     public void Face(Vector3 direction, float deltaTime)
     {
+        if (direction == Vector3.zero) return;
+
         Quaternion rot = Quaternion.LookRotation(direction, direction + transform.up);
+        Quaternion previousRotation = transform.rotation;
         transform.rotation = Quaternion.RotateTowards(transform.rotation, rot, rotationSpeed * deltaTime);
+
+        Quaternion rotationDelta = (transform.rotation * Quaternion.Inverse(previousRotation)).normalized;
+        rotationDelta.ToAngleAxis(out float angleInDegrees, out Vector3 axis);
+        if (angleInDegrees > 180f) angleInDegrees -= 360f;
+
+        angularVelocity = axis * (angleInDegrees * Mathf.Deg2Rad) / deltaTime;
     }
     void MoveTowards(Vector3 direction, float deltaTime)
     {
@@ -90,5 +117,7 @@ public class Navigation : MonoBehaviour
             Gizmos.color = Color.white;
             checker.Draw(navPivot != null ? navPivot : transform);
         }
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, LinearVelocity);
     }
 }

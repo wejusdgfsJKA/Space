@@ -1,3 +1,4 @@
+using HP;
 using UnityEngine;
 namespace Utilities
 {
@@ -54,6 +55,7 @@ namespace Utilities
             }
             return component;
         }
+
         public static Vector3 GetLinearVelocity(this Transform transform)
         {
             IVelocityProvider velocityProvider = ComponentRegister<IVelocityProvider>.Get(transform);
@@ -68,6 +70,10 @@ namespace Utilities
         {
             IVelocityProvider velocityProvider = ComponentRegister<IVelocityProvider>.Get(transform);
             return velocityProvider != null ? (velocityProvider.LinearVelocity, velocityProvider.AngularVelocity) : (Vector3.zero, Vector3.zero);
+        }
+        public static bool TakeDamage(this Transform transform, DamageInfo damageInfo)
+        {
+            return HPComponent.TakeDamage(transform, damageInfo);
         }
         #endregion
     }

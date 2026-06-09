@@ -41,5 +41,6 @@ MonoBehaviour:
     ignoreListenerPause: 0
     rolloffMode: 0
   Tracking: 1
-  Speed: 2
+  TopSpeed: 0
+  Acceleration: 0
   HP: 1

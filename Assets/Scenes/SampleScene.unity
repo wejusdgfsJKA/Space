@@ -413,7 +413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f764f23fdef8054b86888c1cee5b779, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BanditTree
-  rootData: {fileID: 11400000, guid: 34927d4df0e804b4fbe920b66bd682eb, type: 2}
+  rootData: {fileID: 11400000, guid: 382efb56403acff47a18b8b0231696bd, type: 2}
   tickInterval: 0.1
   shouldRun: 1
 --- !u!65 &679176038
@@ -449,7 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7ea87a2de106ca40b159bacd3e551f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Ship
-  Key: 1
+  Key: 2
   <Team>k__BackingField: 0
 --- !u!114 &679176041
 MonoBehaviour:
@@ -856,6 +856,10 @@ PrefabInstance:
     - target: {fileID: 2899903284335934244, guid: 0fa84ee5c3a0ae8498941730ec579ea8, type: 3}
       propertyPath: m_Name
       value: Ship
+      objectReference: {fileID: 0}
+    - target: {fileID: 4759593861478605436, guid: 0fa84ee5c3a0ae8498941730ec579ea8, type: 3}
+      propertyPath: Key
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

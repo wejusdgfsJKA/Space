@@ -1,6 +1,6 @@
-using HP;
 using Pooling;
 using UnityEngine;
+using Utilities;
 namespace Weapons
 {
     [RequireComponent(typeof(LineRenderer))]
@@ -27,16 +27,12 @@ namespace Weapons
         protected override void OnEnable()
         {
             base.OnEnable();
-            var line = GetComponent<LineRenderer>();
-            if (line != null)
+            lineRenderer.SetPosition(0, transform.position);
+            if (Target == null) lineRenderer.SetPosition(1, transform.position + transform.forward * range);
+            else
             {
-                line.SetPosition(0, transform.position);
-                if (Target == null) line.SetPosition(1, transform.position + transform.forward * range);
-                else
-                {
-                    line.SetPosition(1, Target.position);
-                    HPComponent.TakeDamage(Target, damageInfo);
-                }
+                lineRenderer.SetPosition(1, Target.position);
+                Target.TakeDamage(damageInfo);
             }
         }
     }

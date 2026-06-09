@@ -1,5 +1,4 @@
 using AudioSystem;
-using HP;
 using Pooling;
 using UnityEngine;
 using Utilities;
@@ -69,7 +68,7 @@ namespace Weapons
         }
         protected virtual void OnHit(Collider collider)
         {
-            HPComponent.TakeDamage(collider.transform.root, damageInfo);
+            collider.transform.root.TakeDamage(damageInfo);
             if (disableOnHit) gameObject.SetActive(false);
         }
     }
