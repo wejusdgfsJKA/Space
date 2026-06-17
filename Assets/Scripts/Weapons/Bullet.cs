@@ -1,11 +1,35 @@
 using AudioSystem;
 using Pooling;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Utilities;
 namespace Weapons
 {
-    public class Bullet : MonoPoolable, IOwnable
+    public class Bullet : MonoBehaviour, IOwnable
     {
+        public enum Type
+        {
+            Laser,
+            Missile
+        }
+        static readonly ObjectPool<Type, Bullet> objectPool = new();
+        public static void InitializePool()
+        {
+            SceneManager.activeSceneChanged += (s1, s2) => ClearPool();
+        }
+        public static void ClearPool()
+        {
+            objectPool.Clear();
+        }
+        static void Release(Bullet bullet)
+        {
+            objectPool.Release(bullet.poolKey, bullet);
+        }
+        public static bool Get(Type bulletType, out Bullet bullet)
+        {
+            return objectPool.Get(bulletType, out bullet);
+        }
+        protected Type poolKey;
         protected DamageInfo damageInfo = new();
         public Transform Owner
         {
@@ -37,17 +61,12 @@ namespace Weapons
             else Debug.LogWarning($"{transform} has no sound data!");
             GlobalUpdater.Instance.RegisterUpdate(PerformUpdate);
         }
-        public override void Initialize<T>(MonoPoolableData<T> poolableData)
+        public virtual void Initialize(BulletData poolableData)
         {
-            base.Initialize(poolableData);
-            if (poolableData is not BulletData bulletData)
-            {
-                throw new System.ArgumentException($"Expected {typeof(BulletData)}, got {poolableData.GetType()}");
-            }
-            disableOnHit = bulletData.DisableOnHit;
-            damageInfo.Amount = bulletData.Damage;
-            lifeTime = bulletData.LifeTime;
-            soundData = bulletData.SoundData;
+            disableOnHit = poolableData.DisableOnHit;
+            damageInfo.Amount = poolableData.Damage;
+            lifeTime = poolableData.LifeTime;
+            soundData = poolableData.SoundData;
         }
         protected virtual void PerformUpdate(float dt)
         {
@@ -61,10 +80,10 @@ namespace Weapons
         {
             ComponentRegister<IOwnable>.Unregister(tr);
         }
-        protected override void OnDisable()
+        protected virtual void OnDisable()
         {
             GlobalUpdater.Instance.UnregisterUpdate(PerformUpdate);
-            base.OnDisable();
+            Release(this);
         }
         protected virtual void OnHit(Collider collider)
         {

@@ -1,12 +1,30 @@
 using EventBus;
 using UnityEngine;
+using Utilities;
 namespace HP
 {
-    public class HPComponent : MonoBehaviour
+    public class HPComponent : MonoBehaviour, IResettable
     {
-        [field: SerializeField] public float MaxHP { get; set; }
-        float CurrentHP;
-        private void Awake()
+        [SerializeField] protected float maxHP;
+        public float MaxHP
+        {
+            get => maxHP;
+            set
+            {
+                if (value <= 0)
+                {
+                    Debug.LogError($"MaxHP <= 0 for {transform}. Setting to 1.");
+                    value = 1;
+                }
+                maxHP = value;
+            }
+        }
+        public float CurrentHP { get; protected set; }
+        public void PerformReset()
+        {
+            CurrentHP = MaxHP;
+        }
+        protected virtual void Awake()
         {
             EventBus<DamageInfo>.AddActions(transform.root.GetInstanceID(), TakeDamage);
         }
@@ -16,11 +34,11 @@ namespace HP
         }
         private void OnEnable()
         {
-            CurrentHP = MaxHP;
+            PerformReset();
         }
         public void TakeDamage(DamageInfo damageInfo)
         {
-            if (damageInfo.Source == transform)
+            if (damageInfo.Source.GetTeam(throwOnNullTransform: false) == transform.root.GetTeam())
             {
                 return;
             }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 namespace Weapons
@@ -9,7 +8,9 @@ namespace Weapons
         static readonly Dictionary<int, List<Missile>> missiles = new();
         public static List<Missile> GetMissiles(int targetId)
         {
-            return missiles.ContainsKey(targetId) ? missiles[targetId].ToList() : null;
+            if (!missiles.TryGetValue(targetId, out var all)) return null;
+
+            return all;
         }
         public static void Register(Missile missile)
         {
@@ -23,7 +24,7 @@ namespace Weapons
                 Debug.LogError($"Cannot register missile {missile.transform} with null target");
                 return;
             }
-            int id = missile.Target.GetInstanceID();
+            int id = missile.Target.Transform.GetInstanceID();
             if (!missiles.ContainsKey(id))
             {
                 missiles[id] = new List<Missile>();
@@ -38,7 +39,7 @@ namespace Weapons
         public static void Unregister(Missile missile)
         {
             if (missile == null || missile.Target == null) return;
-            int id = missile.Target.GetInstanceID();
+            int id = missile.Target.Transform.GetInstanceID();
             int index = missile.Index;
             if (missiles.ContainsKey(id))
             {

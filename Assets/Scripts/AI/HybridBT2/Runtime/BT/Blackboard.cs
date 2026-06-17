@@ -10,6 +10,7 @@ namespace HybridBT2
             Launchers
         }
         public readonly Transform Transform;
+        public readonly Unit Unit;
         public readonly Navigation Navigation;
         /// <summary>
         /// Time since last tree tick.
@@ -28,9 +29,11 @@ namespace HybridBT2
             DeltaTime = Time.time - lastTime;
             lastTime = Time.time;
         }
+        public void Tick(float deltaTime) => DeltaTime = deltaTime;
         public Blackboard(Transform transform)
         {
             Transform = transform;
+            Unit = transform.GetComponent<Unit>();
             Navigation = transform.GetComponent<Navigation>();
             DeltaTime = 0;
             lastTime = Time.time;

@@ -3,18 +3,18 @@ using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 
-public static class ShipManager
+public static class UnitManager
 {
-    readonly static Dictionary<int, List<Ship>> ships = new();
-    public static List<Ship> GetShips(int team)
+    readonly static Dictionary<int, List<Unit>> ships = new();
+    public static List<Unit> GetShips(int team)
     {
         return ships.ContainsKey(team) ? ships[team].ToList() : null;
     }
-    public static List<Ship> GetTargets(int myTeam)
+    public static List<Unit> GetTargets(int myTeam)
     {
         return ships.Where(kv => kv.Key != myTeam).SelectMany(kv => kv.Value).ToList();
     }
-    public static void Register(Ship ship)
+    public static void Register(Unit ship)
     {
         if (ship == null)
         {
@@ -27,18 +27,18 @@ public static class ShipManager
             ships[team] = new();
         }
         ships[team].Add(ship);
-        ship.Index = ships[team].Count - 1;
+        ship.UnitManagerIndex = ships[team].Count - 1;
     }
-    public static void Unregister(Ship ship)
+    public static void Unregister(Unit ship)
     {
         if (ship == null) return;
         int team = ship.Team;
-        int index = ship.Index;
+        int index = ship.UnitManagerIndex;
         if (ships.ContainsKey(team))
         {
-            ships[team].RemoveAtSwapBack(ship.Index);
-            if (ships[team].Count > 0) ships[team][index].Index = index;
-            ship.Index = -1;
+            ships[team].RemoveAtSwapBack(ship.UnitManagerIndex);
+            if (ships[team].Count > 0) ships[team][index].UnitManagerIndex = index;
+            ship.UnitManagerIndex = -1;
         }
     }
 }

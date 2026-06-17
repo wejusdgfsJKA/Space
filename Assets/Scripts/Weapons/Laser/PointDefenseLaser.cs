@@ -14,16 +14,16 @@ namespace Weapons
         {
             GlobalUpdater.Instance.UnregisterUpdate(PerformUpdate);
         }
-        protected Laser Shoot(Transform missile)
+        protected void Shoot(Transform missile)
         {
-            if (!transform.gameObject.activeSelf) return null;
+            if (!transform.gameObject.activeSelf) return;
+            if (missile == null || !missile.gameObject.activeSelf) return;
             var laser = Shoot() as Laser;
             if (laser != null)
             {
                 laser.Target = missile;
                 laser.gameObject.SetActive(true);
             }
-            return laser;
         }
         protected virtual void OnDrawGizmos()
         {

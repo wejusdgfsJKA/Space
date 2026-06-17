@@ -1,4 +1,3 @@
-using Pooling;
 using UnityEngine;
 using Utilities;
 namespace Weapons
@@ -9,7 +8,7 @@ namespace Weapons
         protected float range = 10;
         public Transform Target { get; set; }
         protected LineRenderer lineRenderer;
-        public override void Initialize<T>(MonoPoolableData<T> poolableData)
+        public override void Initialize(BulletData poolableData)
         {
             base.Initialize(poolableData);
             if (poolableData is not LaserData laserData)

@@ -1,5 +1,4 @@
 using HP;
-using Pooling;
 using UnityEngine;
 using Utilities;
 namespace Weapons
@@ -7,8 +6,8 @@ namespace Weapons
     [RequireComponent(typeof(HPComponent))]
     public class Missile : Bullet, IVelocityProvider
     {
-        protected Transform target;
-        public Transform Target
+        protected Unit target;
+        public Unit Target
         {
             get
             {
@@ -24,7 +23,7 @@ namespace Weapons
                 }
             }
         }
-        protected float tracking, topSpeed, acceleration;
+        protected float initialTracking, topSpeed, acceleration, maxTargetSignature;
         protected LayerMask collisionMask = 1 << 0 | 1 << 6;
         public int Index { get; set; }
         protected Vector3 linearVelocity;
@@ -32,14 +31,21 @@ namespace Weapons
         protected Vector3 angularVelocity;
         public Vector3 AngularVelocity => Vector3.zero;
         protected HPComponent hpComponent;
-        public override void Initialize<T>(MonoPoolableData<T> poolableData)
+        public float EffectiveTracking { get; protected set; }
+        protected float Telemetry()
+        {
+            if (Owner == null) return 0;
+            return Mathf.Max(0, Vector3.Dot(Owner.forward, (target.Position -
+                Owner.position).normalized));
+        }
+        public override void Initialize(BulletData poolableData)
         {
             base.Initialize(poolableData);
             if (poolableData is not MissileData missileData)
             {
                 throw new System.ArgumentException($"Expected {typeof(MissileData)}, got {poolableData.GetType()}");
             }
-            tracking = missileData.Tracking;
+            initialTracking = missileData.Tracking;
             topSpeed = missileData.TopSpeed;
             if (topSpeed <= 0)
             {
@@ -52,8 +58,11 @@ namespace Weapons
                 Debug.LogWarning($"Missile acceleration should not be 0. Setting acceleration to 10% of top speed on {transform}.");
                 acceleration = topSpeed / 10;
             }
+
             if (hpComponent == null) hpComponent = GetComponent<HPComponent>();
             hpComponent.MaxHP = missileData.HP;
+
+            maxTargetSignature = missileData.MaxTargetSignature;
         }
         protected override void OnEnable()
         {
@@ -66,12 +75,24 @@ namespace Weapons
             Target = null;
             base.OnDisable();
         }
+        protected void CalculateEffectiveTracking()
+        {
+            if (Target == null)
+            {
+                EffectiveTracking = 0;
+                return;
+            }
+
+            EffectiveTracking = initialTracking * (1 + Telemetry()) *
+                Mathf.Min(1, target.Signature / maxTargetSignature);
+        }
         protected override void PerformUpdate(float dt)
         {
             base.PerformUpdate(dt);
-            if (target != null && target.gameObject.activeInHierarchy == false)
+            if (target != null && target.Transform.gameObject.activeInHierarchy == false)
             {
                 Target = null;
+                EffectiveTracking = 0;
             }
 
             if (Physics.Raycast(tr.position, linearVelocity, out RaycastHit hit, linearVelocity.magnitude * dt, collisionMask))
@@ -82,9 +103,11 @@ namespace Weapons
             {
                 if (Target != null)
                 {
-                    Vector3 directionToTarget = (Target.position - tr.position).normalized;
+                    CalculateEffectiveTracking();
+
+                    Vector3 directionToTarget = (Target.Position - tr.position).normalized;
                     Vector3 newDirection = Vector3.RotateTowards(tr.forward, directionToTarget,
-                        tracking * dt, 0);
+                        EffectiveTracking * dt, 0);
 
                     Quaternion prevRotation = tr.rotation;
                     tr.rotation = Quaternion.LookRotation(newDirection);

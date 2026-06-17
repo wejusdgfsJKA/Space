@@ -1,31 +1,36 @@
-using Pooling;
-using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utilities;
-using Weapons;
-public class Ship : MonoPoolable, IRegisterableComponent
+public class Ship : Unit, IRegisterableComponent, IVelocityProvider
 {
-    [field: SerializeField] public int Team { get; set; }
-    public int Index { get; set; }
-    public Transform Transform { get; protected set; }
-    private void Awake()
+    [SerializeField] protected float topSpeed = 5f, acceleration = 1, rotationSpeed = 5, thrust = 1;
+    protected Rigidbody rb;
+    protected Vector3 angularVelocity;
+    public Vector3 AngularVelocity => angularVelocity;
+    public Vector3 LinearVelocity => rb != null ? rb.linearVelocity : Vector3.zero;
+    protected override void Awake()
     {
-        ComponentRegister<Ship>.Register(transform, this);
-        Transform = transform;
+        base.Awake();
+        ComponentRegister<IVelocityProvider>.Register(transform, this);
+        rb = gameObject.GetOrAddComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.useGravity = false;
+        rb.linearDamping = 0;
     }
-    private void OnDestroy()
+    protected override void OnEnable()
     {
-        ComponentRegister<Ship>.Unregister(transform);
+        base.OnEnable();
+        angularVelocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
     }
-    public List<Ship> GetTargets() => ShipManager.GetTargets(Team);
-    protected virtual void OnEnable()
+    protected override void OnDestroy()
     {
-        ShipManager.Register(this);
+        base.Awake();
+        ComponentRegister<IVelocityProvider>.Unregister(transform);
     }
-    protected override void OnDisable()
+    protected void ApplyDampeners(Vector3 intendedVelocity, float deltaTime)
     {
-        MissileManager.Unregister(transform.GetInstanceID());
-        ShipManager.Unregister(this);
-        base.OnDisable();
+        rb.linearVelocity = Vector3.MoveTowards(rb.linearVelocity,
+            intendedVelocity, thrust * deltaTime);
     }
 }

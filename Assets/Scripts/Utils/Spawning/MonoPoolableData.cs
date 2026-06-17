@@ -2,29 +2,17 @@ using UnityEngine;
 
 namespace Pooling
 {
-    public class MonoPoolableData<T> : ScriptableObject where T : MonoPoolable
+    public abstract class MonoPoolableData<K, T> : ScriptableObject where T : MonoBehaviour
     {
-        public MonoPoolableManager.Keys Key;
+        public K Key;
         public T Prefab;
-        public T GetInstance(Transform point)
+        public T GetInstance(Transform point) => GetInstance(point.position, point.rotation);
+        public T GetInstance(Vector3 position, Quaternion rotation)
         {
             var instance = GetInstance();
-            instance.transform.SetPositionAndRotation(point.position, point.rotation);
+            instance.transform.SetPositionAndRotation(position, rotation);
             return instance;
         }
-        public T GetInstance()
-        {
-            T instance;
-            if (MonoPoolableManager.Instance.Get(Key, out var obj))
-            {
-                instance = obj as T;
-            }
-            else
-            {
-                instance = Instantiate(Prefab);
-            }
-            instance.Initialize(this);
-            return instance;
-        }
+        protected abstract T GetInstance();
     }
 }

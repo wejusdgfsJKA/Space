@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54146df32422b04c8f0d5c4bfe6851e, type: 3}
   m_Name: LaserData
   m_EditorClassIdentifier: Assembly-CSharp::Weapons.LaserData
-  Key: 1
+  Key: 0
   Prefab: {fileID: 3964667719728751372, guid: 1e72d942cec8e874ebeac083fa79f2a0, type: 3}
   DisableOnHit: 0
   Damage: 1

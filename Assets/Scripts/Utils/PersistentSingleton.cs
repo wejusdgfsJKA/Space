@@ -1,9 +1,12 @@
 using UnityEngine;
 namespace Utilities
 {
-    public class Singleton<T> : MonoBehaviour where T : Component
+    public class PersistentSingleton<T> : MonoBehaviour where T : Component
     {
+        public bool AutoUnparentOnAwake = true;
+
         protected static T instance;
+
         public static bool HasInstance => instance != null;
         public static T TryGetInstance() => HasInstance ? instance : null;
 
@@ -33,27 +36,27 @@ namespace Utilities
             InitializeSingleton();
         }
 
-        protected virtual void OnDestroy()
-        {
-            ClearSingleton();
-        }
-
-        protected virtual void ClearSingleton()
-        {
-            if (instance == this) instance = null;
-        }
-
         protected virtual void InitializeSingleton()
         {
             if (!Application.isPlaying) return;
 
-            if (instance != null && instance != this)
+            if (AutoUnparentOnAwake)
             {
-                Destroy(gameObject);
-                return;
+                transform.SetParent(null);
             }
 
-            instance = this as T;
+            if (instance == null)
+            {
+                instance = this as T;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                if (instance != this)
+                {
+                    Destroy(gameObject);
+                }
+            }
         }
     }
 }

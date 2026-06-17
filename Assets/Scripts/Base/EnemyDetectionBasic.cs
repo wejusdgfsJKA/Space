@@ -4,10 +4,10 @@ using Utilities;
 
 public class EnemyDetectionBasic : MonoBehaviour
 {
-    [SerializeField] protected UnityEvent<Transform> OnEnemyDetected;
+    [SerializeField] protected UnityEvent<Unit> OnEnemyDetected;
     [SerializeField] protected float detectionRadius = 10;
-    protected Transform target;
-    public Transform Target
+    protected Unit target = null;
+    public Unit Target
     {
         get => target;
         set
@@ -24,18 +24,13 @@ public class EnemyDetectionBasic : MonoBehaviour
             }
         }
     }
-    private void OnEnable()
-    {
-        Target = null;
-    }
     private void OnDisable()
     {
         Target = null;
     }
     private void Update()
     {
-        var ship = ComponentRegister<Ship>.Get(transform.root);
-        if (ship == null) return;
+        var ship = ComponentRegister<Unit>.Get(transform.root);
         var targets = ship.GetTargets();
         if (targets == null || targets.Count == 0)
         {
@@ -54,7 +49,13 @@ public class EnemyDetectionBasic : MonoBehaviour
                     closestDistance = distance;
                 }
             }
-            Target = closestDistance <= detectionRadius ? closestTarget.Transform : null;
+            Target = closestDistance <= detectionRadius ? closestTarget : null;
         }
+    }
+    private void OnDrawGizmos()
+    {
+        if (Target == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, Target.Position);
     }
 }

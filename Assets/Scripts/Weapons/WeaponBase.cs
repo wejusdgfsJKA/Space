@@ -53,6 +53,7 @@ namespace Weapons
             if (!CanShoot()) return null;
             var b = Fire();
             if (b == null) return null;
+            b.Owner = transform.root;
             shotTimer.Start();
             return b;
         }

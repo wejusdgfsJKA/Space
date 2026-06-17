@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 916cf2d17c3d29646931fe2a405be942, type: 3}
   m_Name: MissileData
   m_EditorClassIdentifier: Assembly-CSharp::Weapons.MissileData
-  Key: 0
+  Key: 1
   Prefab: {fileID: 8799911408726508642, guid: cd7ab4f9d57d54245bf0bc17eb36e50b, type: 3}
   DisableOnHit: 1
   Damage: 1
@@ -41,6 +41,7 @@ MonoBehaviour:
     ignoreListenerPause: 0
     rolloffMode: 0
   Tracking: 1
-  TopSpeed: 0
-  Acceleration: 0
+  MaxTargetSignature: 1
+  TopSpeed: 3
+  Acceleration: 0.1
   HP: 1
