@@ -9,7 +9,13 @@ namespace Weapons
     public class WeaponParameters : ScriptableObject
     {
         [Tooltip("cooldown between shots.")]
-        public float Cooldown;
+        public float MaxShotCooldown = 1, RateOfFireRampUp = 0.1f, RateOfFireRampDown = 0.2f,
+            MinShotCooldown = 0.1f;
         public BulletData BulletData;
+        protected virtual void OnValidate()
+        {
+            Debug.Assert(BulletData != null);
+        }
+        public Bullet GetInstance(Transform point) => BulletData.GetInstance(point);
     }
 }

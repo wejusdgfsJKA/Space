@@ -6,8 +6,8 @@ public class Ship : Unit, IRegisterableComponent, IVelocityProvider
     [SerializeField] protected float topSpeed = 5f, acceleration = 1, rotationSpeed = 5, thrust = 1;
     protected Rigidbody rb;
     protected Vector3 angularVelocity;
-    public Vector3 AngularVelocity => angularVelocity;
-    public Vector3 LinearVelocity => rb != null ? rb.linearVelocity : Vector3.zero;
+    public override Vector3 AngularVelocity => angularVelocity;
+    public override Vector3 LinearVelocity => rb != null ? rb.linearVelocity : Vector3.zero;
     protected override void Awake()
     {
         base.Awake();

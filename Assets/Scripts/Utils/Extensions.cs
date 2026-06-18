@@ -1,11 +1,16 @@
 using HP;
+using System.Collections.Generic;
 using UnityEngine;
 namespace Utilities
 {
     public static class Extensions
     {
+        public static bool IsEmpty<T>(this ICollection<T> collection)
+        {
+            return collection == null || collection.Count == 0;
+        }
         /// <summary>
-        /// If an angle is > 180, will subtract 360.
+        /// If an angle is > 180, will subtract 360. If it is < 180, will add 360.
         /// </summary>
         /// <param name="angle"></param>
         /// <returns></returns>

@@ -10,7 +10,6 @@ namespace Weapons
         public int Damage;
         public float LifeTime;
         public SoundData SoundData;
-
         protected override Bullet GetInstance()
         {
             if (!Bullet.Get(Key, out Bullet instance))
@@ -20,7 +19,6 @@ namespace Weapons
             instance.Initialize(this);
             return instance;
         }
-
         protected virtual void OnValidate()
         {
             if (LifeTime <= 0)

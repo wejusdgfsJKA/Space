@@ -2,10 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Utilities
 {
-    public interface IRegisterableComponent
-    {
-
-    }
+    public interface IRegisterableComponent { }
     public static class ComponentRegister<T> where T : class, IRegisterableComponent
     {
         static readonly Dictionary<Transform, T> storage = new();

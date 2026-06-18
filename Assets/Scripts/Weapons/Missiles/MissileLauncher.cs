@@ -1,16 +1,14 @@
+using UnityEngine;
+
 namespace Weapons
 {
     public class MissileLauncher : WeaponBase
     {
-        public void Shoot(Unit target)
+        public override void ProcessBullet(Bullet bullet, Unit target)
         {
-            if (target == null || !target.Transform.gameObject.activeSelf) return;
-            var missile = Shoot() as Missile;
-            if (missile != null)
-            {
-                missile.Target = target;
-                missile.gameObject.SetActive(true);
-            }
+            if (target != null) ((Missile)bullet).Target = target;
+            else Debug.LogWarning($"Missile launcher {transform} was not passed a target!");
+            base.ProcessBullet(bullet, target);
         }
     }
 }

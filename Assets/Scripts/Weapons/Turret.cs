@@ -4,45 +4,63 @@ namespace Weapons
 {
     public class Turret : MonoBehaviour
     {
-        public Transform Target;
+        public Unit Target;
+        [SerializeField] protected WeaponBase weapon;
         protected Transform tr;
+        [SerializeField] protected Transform rotationPivot, elevationPivot;
         public Transform Transform => tr != null ? tr : transform;
-        [field: SerializeField] public Transform RotationPivot { get; protected set; }
-        [field: SerializeField] public Transform ElevationPivot { get; protected set; }
+        public Vector3 Forward => ElevationPivot.forward;
+        public Transform RotationPivot => rotationPivot != null ? rotationPivot : Transform;
+        public Transform ElevationPivot => elevationPivot != null ? elevationPivot : Transform;
         [SerializeField] protected float rotSpeed = 50;
         [SerializeField] protected float minElevation = 0, maxElevation = 90, minRot = -190, maxRot = 190;
         [SerializeField] protected float maxErrorAngle = 1;
         protected void Awake()
         {
             tr = transform;
-            if (RotationPivot == null) RotationPivot = tr;
-            if (ElevationPivot == null) ElevationPivot = tr;
+            if (weapon == null) weapon = GetComponentInChildren<WeaponBase>();
         }
         private void Update()
         {
             Tick(Time.deltaTime);
         }
+        public Vector3 ComputeTargetPosition(Unit target)
+        {
+            float timeToHit = 0;
+            var m = weapon.BulletData as MissileData;
+            if (m != null) timeToHit = (target.Position - Transform.position).magnitude / m.TopSpeed;
+
+            var futureTargetPos = target.Position + target.LinearVelocity * timeToHit;
+
+            return futureTargetPos;
+        }
         public void Tick(float deltaTime)
         {
             if (Target != null)
             {
-                LookAt(Target.position, deltaTime);
-                if (Vector3.Angle(ElevationPivot.forward, (Target.position -
-                    Transform.position)) < maxErrorAngle)
+                if (Target.gameObject.activeSelf)
                 {
-                    IncreaseReadiness(deltaTime);
-                    return;
+                    var pos = ComputeTargetPosition(Target);
+                    LookAt(pos, deltaTime);
+                    if (Vector3.Angle(ElevationPivot.forward, (pos -
+                        Transform.position)) < maxErrorAngle)
+                    {
+                        IncreaseReadiness(deltaTime);
+                        weapon.Shoot(Target);
+                        return;
+                    }
                 }
+                else Target = null;
             }
             DecreaseReadiness(deltaTime);
         }
         protected void IncreaseReadiness(float deltaTime)
         {
-
+            weapon.IncreaseReadiness(deltaTime);
         }
         protected void DecreaseReadiness(float deltaTime)
         {
-
+            weapon.DecreaseReadiness(deltaTime);
         }
         protected void LookAt(Vector3 position, float deltaTime)
         {

@@ -1,25 +1,28 @@
 using Timers;
 using UnityEngine;
-
+using Utilities;
 namespace Weapons
 {
     public abstract class WeaponBase : MonoBehaviour, IResettable
     {
-        #region Utils
-        public bool Firing { get; protected set; }
+        #region Utils        
+        protected CountdownTimer shotTimer;
+        protected float currentShotCooldown;
         #endregion
 
         #region Weapon parameters
         [SerializeField] protected WeaponParameters @params;
-        protected CountdownTimer shotTimer;
+        [SerializeField] protected Transform[] shootPoints;
+        public BulletData BulletData => @params != null ? @params.BulletData : null;
         #endregion
 
         #region Setup
         protected virtual void Awake()
         {
             Debug.Assert(@params != null, $"{transform} has no weapon parameters!");
-            Debug.Assert(@params.Cooldown >= 0, $"{transform} has negative cooldown!");
-            shotTimer = new(@params.Cooldown);
+            Debug.Assert(@params.MaxShotCooldown >= 0, $"{transform} has negative cooldown!");
+            Debug.Assert((!shootPoints.IsEmpty() && shootPoints[0] != null), $"{transform} has invalid shoot points!");
+            shotTimer = new(@params.MaxShotCooldown);
         }
         protected virtual void OnEnable()
         {
@@ -30,8 +33,7 @@ namespace Weapons
         /// </summary>
         public virtual void PerformReset()
         {
-            shotTimer.Reset();
-            Firing = false;
+            shotTimer.Reset(@params.MaxShotCooldown);
         }
         protected virtual void OnDestroy()
         {
@@ -40,30 +42,45 @@ namespace Weapons
         #endregion
 
         #region Functionality
-        public virtual void AimAt(Transform target)
+        public virtual void IncreaseReadiness(float deltaTime)
         {
-            transform.LookAt(target);
+            currentShotCooldown = Mathf.Max(@params.MinShotCooldown,
+                currentShotCooldown - @params.RateOfFireRampUp);
+        }
+        public virtual void DecreaseReadiness(float deltaTime)
+        {
+            currentShotCooldown = Mathf.Min(@params.MaxShotCooldown,
+                currentShotCooldown + @params.RateOfFireRampDown);
         }
         public virtual bool CanShoot()
         {
             return !shotTimer.IsRunning;
         }
-        public Bullet Shoot()
+
+        public bool Shoot(Unit target)
         {
-            if (!CanShoot()) return null;
-            var b = Fire();
-            if (b == null) return null;
-            b.Owner = transform.root;
+            if (!CanShoot()) return false;
+            Fire(target);
+            shotTimer.Reset(currentShotCooldown);
             shotTimer.Start();
-            return b;
+            return true;
         }
         /// <summary>
         /// Fire once.
         /// </summary>
-        public virtual Bullet Fire()
+        public virtual void Fire(Unit target)
         {
-            return @params.BulletData.GetInstance(transform);
+            for (int i = 0; i < shootPoints.Length; i++)
+            {
+                ProcessBullet(@params.GetInstance(shootPoints[i]), target);
+            }
         }
+        public virtual void ProcessBullet(Bullet bullet, Unit target)
+        {
+            bullet.Owner = transform.root;
+            bullet.gameObject.SetActive(true);
+        }
+
         #endregion
     }
 }

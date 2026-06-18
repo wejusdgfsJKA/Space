@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utilities;
 
-public class Unit : MonoBehaviour, IRegisterableComponent
+public class Unit : MonoBehaviour, IRegisterableComponent, IVelocityProvider
 {
+    public virtual Vector3 LinearVelocity => Vector3.zero;
+    public virtual Vector3 AngularVelocity => Vector3.zero;
     public int UnitManagerIndex { get; set; }
     [field: SerializeField] public int Team { get; set; }
     [SerializeField] protected float signature, defaultSignature;

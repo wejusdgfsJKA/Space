@@ -68,6 +68,12 @@ namespace Weapons
         {
             base.OnEnable();
             linearVelocity = Owner.GetLinearVelocity();
+
+            if (Owner != null) gameObject.layer = GlobalConfig.
+                    GetBulletLayer(Owner.gameObject.layer);
+            else gameObject.layer = GlobalConfig.GetBulletLayer(0);
+            collisionMask = GlobalConfig.GetBulletCollisionMask(gameObject.layer);
+
             angularVelocity = Vector3.zero;
         }
         protected override void OnDisable()

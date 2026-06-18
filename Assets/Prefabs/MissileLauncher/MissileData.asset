@@ -43,5 +43,5 @@ MonoBehaviour:
   Tracking: 1
   MaxTargetSignature: 1
   TopSpeed: 3
-  Acceleration: 0.1
+  Acceleration: 0.5
   HP: 1
