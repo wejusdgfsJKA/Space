@@ -35,13 +35,13 @@ namespace Weapons
 
             return true;
         }
-        public Vector3 ComputeTargetPosition(IObject target)
+        public Vector3 ComputeTargetingPosition(IObject target)
         {
             float timeToHit = 0;
             var m = weapon.BulletData as MissileData;
             if (m != null) timeToHit = (target.Transform.position - Transform.position).magnitude / m.TopSpeed;
 
-            var futureTargetPos = target.Transform.position + target.LinearVelocity * timeToHit;
+            var futureTargetPos = target.GetPositionWithOscilation(Owner) + target.LinearVelocity * timeToHit;
 
             return futureTargetPos;
         }
@@ -72,7 +72,7 @@ namespace Weapons
             {
                 if (Target.Transform.gameObject.activeSelf)
                 {
-                    var pos = ComputeTargetPosition(Target);
+                    var pos = ComputeTargetingPosition(Target);
                     if ((Transform.position - pos).sqrMagnitude <= @params.MaxRangeSquared)
                     {
                         LookAt(pos, deltaTime);

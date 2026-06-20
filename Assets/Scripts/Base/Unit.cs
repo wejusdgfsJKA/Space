@@ -5,24 +5,31 @@ using Utilities;
 
 public class Unit : MonoBehaviour, IRegisterableComponent, IObject
 {
-    public virtual Vector3 LinearVelocity => Vector3.zero;
-    public virtual Vector3 AngularVelocity => Vector3.zero;
+    #region Fields
     public int UnitManagerIndex { get; set; }
     [field: SerializeField] public int Team { get; set; }
-    [SerializeField] protected float signature, defaultSignature;
+    public virtual Vector3 LinearVelocity => Vector3.zero;
+    public virtual Vector3 AngularVelocity => Vector3.zero;
     public float Signature => signature;
     public Transform Transform { get; protected set; }
     public Vector3 Position => Transform.position;
+    [SerializeField] protected float signature, defaultSignature;
+    [field: SerializeField] public float ScanRange { get; protected set; }
     protected HPComponent hpComponent;
     public float CurrentHP => hpComponent != null ? hpComponent.CurrentHP : 0;
     public float CurrentHPPercentage => hpComponent != null ? hpComponent.CurrentHP / hpComponent.MaxHP : 0;
+    #endregion
     protected virtual void Awake()
     {
         Transform = transform;
         if (hpComponent != null) hpComponent = GetComponent<HPComponent>();
         ComponentRegister<Unit>.Register(Transform, this);
     }
-    protected virtual void OnEnable() => UnitManager.Register(this);
+    protected virtual void OnEnable()
+    {
+        signature = defaultSignature;
+        UnitManager.Register(this);
+    }
     protected virtual void OnDisable() => UnitManager.Unregister(this);
     protected virtual void OnDestroy()
     {

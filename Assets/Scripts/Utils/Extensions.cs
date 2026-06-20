@@ -5,6 +5,11 @@ namespace Utilities
 {
     public static class Extensions
     {
+        public static Vector3 GetPositionWithOscilation(this IObject @object, Unit scanner)
+        {
+            var dist = Mathf.Max((scanner.Transform.position - @object.Transform.position).sqrMagnitude - @object.Signature - scanner.ScanRange, 0);
+            return @object.Transform.position + dist * Random.insideUnitSphere;
+        }
         public static bool IsEmpty<T>(this ICollection<T> collection)
         {
             return collection == null || collection.Count == 0;
