@@ -1,6 +1,6 @@
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
-public class Navigation : Ship, IVelocityProvider
+public class Navigation : Ship
 {
     [field: SerializeField] public bool DampenVelocityToZero { get; set; } = true;
     public void SetDestination(Vector3? destination) => Destination = destination;

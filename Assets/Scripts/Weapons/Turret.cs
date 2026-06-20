@@ -4,53 +4,92 @@ namespace Weapons
 {
     public class Turret : MonoBehaviour
     {
-        public Unit Target;
+        public IObject Target { get; set; }
+        public Unit Owner { get; protected set; }
         [SerializeField] protected WeaponBase weapon;
         protected Transform tr;
-        [SerializeField] protected Transform rotationPivot, elevationPivot;
+        [field: SerializeField] public Transform RotationPivot { get; protected set; }
+        [field: SerializeField] public Transform ElevationPivot { get; protected set; }
         public Transform Transform => tr != null ? tr : transform;
         public Vector3 Forward => ElevationPivot.forward;
-        public Transform RotationPivot => rotationPivot != null ? rotationPivot : Transform;
-        public Transform ElevationPivot => elevationPivot != null ? elevationPivot : Transform;
-        [SerializeField] protected float rotSpeed = 50;
-        [SerializeField] protected float minElevation = 0, maxElevation = 90, minRot = -190, maxRot = 190;
-        [SerializeField] protected float maxErrorAngle = 1;
+        [SerializeField] protected TurretData @params;
+        public float MaxRangeSquared => @params.MaxRangeSquared;
         protected void Awake()
         {
             tr = transform;
+            Owner = GetComponentInParent<Unit>();
             if (weapon == null) weapon = GetComponentInChildren<WeaponBase>();
         }
-        private void Update()
+        public bool IsInAngle(Vector3 position)
         {
-            Tick(Time.deltaTime);
+            var dir = (position - Transform.position).normalized;
+
+            var localRotation = Quaternion.Inverse(Transform.rotation) *
+                Quaternion.LookRotation(dir, Transform.up);
+
+            if (localRotation.eulerAngles.y < @params.MinRot ||
+                localRotation.eulerAngles.y > @params.MaxRot) return false;
+
+            if (localRotation.eulerAngles.x < -@params.MaxElevation ||
+                localRotation.eulerAngles.x > -@params.MinElevation) return false;
+
+            return true;
         }
-        public Vector3 ComputeTargetPosition(Unit target)
+        public Vector3 ComputeTargetPosition(IObject target)
         {
             float timeToHit = 0;
             var m = weapon.BulletData as MissileData;
-            if (m != null) timeToHit = (target.Position - Transform.position).magnitude / m.TopSpeed;
+            if (m != null) timeToHit = (target.Transform.position - Transform.position).magnitude / m.TopSpeed;
 
-            var futureTargetPos = target.Position + target.LinearVelocity * timeToHit;
+            var futureTargetPos = target.Transform.position + target.LinearVelocity * timeToHit;
 
             return futureTargetPos;
+        }
+        public void UpdateTargets()
+        {
+            if (Owner == null) return;
+            if (Target != null && !Target.Transform.gameObject.activeSelf) Target = null;
+            var targets = Owner.GetTargets();
+            if (targets.IsEmpty()) return;
+
+            float bestScore = @params.EvaluateTarget(this, Target);
+            for (int i = 0; i < targets.Count; i++)
+            {
+                var score = @params.EvaluateTarget(this, targets[i]);
+                if (score <= 0) return;
+
+                if (score > bestScore + @params.MinScoreDelta)
+                {
+                    bestScore = score;
+                    Target = targets[i];
+                }
+            }
+
         }
         public void Tick(float deltaTime)
         {
             if (Target != null)
             {
-                if (Target.gameObject.activeSelf)
+                if (Target.Transform.gameObject.activeSelf)
                 {
                     var pos = ComputeTargetPosition(Target);
-                    LookAt(pos, deltaTime);
-                    if (Vector3.Angle(ElevationPivot.forward, (pos -
-                        Transform.position)) < maxErrorAngle)
+                    if ((Transform.position - pos).sqrMagnitude <= @params.MaxRangeSquared)
                     {
-                        IncreaseReadiness(deltaTime);
-                        weapon.Shoot(Target);
-                        return;
+                        LookAt(pos, deltaTime);
+                        if (Vector3.Angle(ElevationPivot.forward, (pos -
+                            Transform.position)) < @params.MaxAngleDifference)
+                        {
+                            IncreaseReadiness(deltaTime);
+                            weapon.Shoot(Target);
+                            return;
+                        }
                     }
                 }
-                else Target = null;
+                else
+                {
+                    Target = null;
+                    UpdateTargets();
+                }
             }
             DecreaseReadiness(deltaTime);
         }
@@ -61,6 +100,28 @@ namespace Weapons
         protected void DecreaseReadiness(float deltaTime)
         {
             weapon.DecreaseReadiness(deltaTime);
+            RotateToIdle(deltaTime);
+        }
+        protected void RotateToIdle(float deltaTime)
+        {
+            if (RotationPivot.rotation == Quaternion.identity && ElevationPivot.rotation == Quaternion.identity) return;
+
+            if (RotationPivot == ElevationPivot)
+            {
+                var targetRot = Quaternion.RotateTowards(RotationPivot.rotation,
+                    Transform.rotation, deltaTime * @params.RotSpeed);
+                RotationPivot.rotation = targetRot;
+            }
+            else
+            {
+                var horizTargetRot = Quaternion.RotateTowards(RotationPivot.rotation,
+                   Transform.rotation, deltaTime * @params.RotSpeed);
+                RotationPivot.rotation = horizTargetRot;
+
+                var elevTargetRot = Quaternion.RotateTowards(ElevationPivot.rotation,
+                    Transform.rotation, deltaTime * @params.RotSpeed);
+                ElevationPivot.rotation = elevTargetRot;
+            }
         }
         protected void LookAt(Vector3 position, float deltaTime)
         {
@@ -78,13 +139,13 @@ namespace Weapons
         {
             var newRotation = Quaternion.LookRotation(direction, Transform.up);
             var targetRot = Quaternion.RotateTowards(RotationPivot.rotation,
-                newRotation, deltaTime * rotSpeed);
+                newRotation, deltaTime * @params.RotSpeed);
 
             RotationPivot.rotation = targetRot;
             var targetYaw = Mathf.Clamp(Extensions.NormalizeAngle(RotationPivot.
-                localRotation.eulerAngles.y), minRot, maxRot);
+                localRotation.eulerAngles.y), @params.MinRot, @params.MaxRot);
             var targetPitch = Mathf.Clamp(Extensions.NormalizeAngle(RotationPivot.
-                localRotation.eulerAngles.x), -maxElevation, -minElevation);
+                localRotation.eulerAngles.x), -@params.MaxElevation, -@params.MinElevation);
 
             RotationPivot.localRotation = Quaternion.Euler(targetPitch, targetYaw, 0);
         }
@@ -93,17 +154,18 @@ namespace Weapons
             var newRotation = Quaternion.LookRotation(direction, Transform.up);
 
             var horizTargetRot = Quaternion.RotateTowards(RotationPivot.rotation,
-                newRotation, deltaTime * rotSpeed);
+                newRotation, deltaTime * @params.RotSpeed);
             RotationPivot.rotation = horizTargetRot;
             var targetYaw = Mathf.Clamp(Extensions.NormalizeAngle(RotationPivot.
-                localRotation.eulerAngles.y), minRot, maxRot);
+                localRotation.eulerAngles.y), @params.MinRot, @params.MaxRot);
             RotationPivot.localRotation = Quaternion.Euler(0, targetYaw, 0);
 
             //newRotation = Quaternion.LookRotation(direction, Transform.up);
             var elevTargetRot = Quaternion.RotateTowards(ElevationPivot.rotation,
-                newRotation, deltaTime * rotSpeed);
+                newRotation, deltaTime * @params.RotSpeed);
             ElevationPivot.rotation = elevTargetRot;
-            var targetPitch = Mathf.Clamp(Extensions.NormalizeAngle(ElevationPivot.localRotation.eulerAngles.x), -maxElevation, -minElevation);
+            var targetPitch = Mathf.Clamp(Extensions.NormalizeAngle(ElevationPivot.
+                localRotation.eulerAngles.x), -@params.MaxElevation, -@params.MinElevation);
             //var targetPitch=Mathf.Clamp(ElevationPivot.localRotation.x,)
             ElevationPivot.localRotation = Quaternion.Euler(targetPitch, 0, 0);
         }

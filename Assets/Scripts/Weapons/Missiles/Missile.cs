@@ -4,10 +4,11 @@ using Utilities;
 namespace Weapons
 {
     [RequireComponent(typeof(HPComponent))]
-    public class Missile : Bullet, IVelocityProvider
+    public class Missile : Bullet, IObject
     {
-        protected Unit target;
-        public Unit Target
+        public float Signature => 0;
+        protected IObject target;
+        public IObject Target
         {
             get
             {
@@ -32,10 +33,14 @@ namespace Weapons
         public Vector3 AngularVelocity => Vector3.zero;
         protected HPComponent hpComponent;
         public float EffectiveTracking { get; protected set; }
+        protected override void Awake()
+        {
+            base.Awake();
+        }
         protected float Telemetry()
         {
             if (Owner == null) return 0;
-            return Mathf.Max(0, Vector3.Dot(Owner.forward, (target.Position -
+            return Mathf.Max(0, Vector3.Dot(Owner.forward, (target.Transform.position -
                 Owner.position).normalized));
         }
         public override void Initialize(BulletData poolableData)
@@ -111,7 +116,7 @@ namespace Weapons
                 {
                     CalculateEffectiveTracking();
 
-                    Vector3 directionToTarget = (Target.Position - tr.position).normalized;
+                    Vector3 directionToTarget = (Target.Transform.position - tr.position).normalized;
                     Vector3 newDirection = Vector3.RotateTowards(tr.forward, directionToTarget,
                         EffectiveTracking * dt, 0);
 

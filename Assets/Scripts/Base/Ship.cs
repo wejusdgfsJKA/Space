@@ -1,7 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using Utilities;
-public class Ship : Unit, IRegisterableComponent, IVelocityProvider
+public class Ship : Unit, IRegisterableComponent
 {
     [SerializeField] protected float topSpeed = 5f, acceleration = 1, rotationSpeed = 5, thrust = 1;
     protected Rigidbody rb;
@@ -11,7 +11,7 @@ public class Ship : Unit, IRegisterableComponent, IVelocityProvider
     protected override void Awake()
     {
         base.Awake();
-        ComponentRegister<IVelocityProvider>.Register(transform, this);
+        ComponentRegister<IObject>.Register(transform, this);
         rb = gameObject.GetOrAddComponent<Rigidbody>();
         rb.isKinematic = false;
         rb.useGravity = false;
@@ -26,7 +26,7 @@ public class Ship : Unit, IRegisterableComponent, IVelocityProvider
     protected override void OnDestroy()
     {
         base.Awake();
-        ComponentRegister<IVelocityProvider>.Unregister(transform);
+        ComponentRegister<IObject>.Unregister(transform);
     }
     protected void ApplyDampeners(Vector3 intendedVelocity, float deltaTime)
     {

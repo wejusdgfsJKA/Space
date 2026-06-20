@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utilities;
 
-public class Unit : MonoBehaviour, IRegisterableComponent, IVelocityProvider
+public class Unit : MonoBehaviour, IRegisterableComponent, IObject
 {
     public virtual Vector3 LinearVelocity => Vector3.zero;
     public virtual Vector3 AngularVelocity => Vector3.zero;

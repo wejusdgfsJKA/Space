@@ -7,6 +7,7 @@ namespace Weapons
 {
     public class Bullet : MonoBehaviour, IOwnable
     {
+        #region Pool
         public enum Type
         {
             Laser,
@@ -29,6 +30,7 @@ namespace Weapons
         {
             return objectPool.Get(bulletType, out bullet);
         }
+        #endregion
         protected Type poolKey;
         protected DamageInfo damageInfo = new();
         public Transform Owner
@@ -47,6 +49,7 @@ namespace Weapons
             }
         }
         protected Transform tr;
+        public Transform Transform => tr != null ? tr : transform;
         protected SoundData soundData;
         protected bool disableOnHit = true;
         protected float lifeTime;

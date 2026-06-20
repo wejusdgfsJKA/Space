@@ -5,8 +5,10 @@ using Utilities;
 /// <summary>
 /// Provides linear and angular velocity.
 /// </summary>
-public interface IVelocityProvider : IRegisterableComponent
+public interface IObject : IRegisterableComponent
 {
+    float Signature { get; }
+    Transform Transform { get; }
     Vector3 AngularVelocity { get; }
     Vector3 LinearVelocity { get; }
 }

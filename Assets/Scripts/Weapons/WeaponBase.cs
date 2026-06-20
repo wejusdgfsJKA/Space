@@ -57,7 +57,7 @@ namespace Weapons
             return !shotTimer.IsRunning;
         }
 
-        public bool Shoot(Unit target)
+        public bool Shoot(IObject target)
         {
             if (!CanShoot()) return false;
             Fire(target);
@@ -68,14 +68,14 @@ namespace Weapons
         /// <summary>
         /// Fire once.
         /// </summary>
-        public virtual void Fire(Unit target)
+        public virtual void Fire(IObject target)
         {
             for (int i = 0; i < shootPoints.Length; i++)
             {
                 ProcessBullet(@params.GetInstance(shootPoints[i]), target);
             }
         }
-        public virtual void ProcessBullet(Bullet bullet, Unit target)
+        public virtual void ProcessBullet(Bullet bullet, IObject target)
         {
             bullet.Owner = transform.root;
             bullet.gameObject.SetActive(true);
