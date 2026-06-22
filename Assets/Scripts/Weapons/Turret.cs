@@ -14,12 +14,26 @@ namespace Weapons
         public Vector3 Forward => ElevationPivot.forward;
         [SerializeField] protected TurretData @params;
         public float MaxRangeSquared => @params.MaxRangeSquared;
+
+        #region Setup
         protected void Awake()
         {
             tr = transform;
             Owner = GetComponentInParent<Unit>();
             if (weapon == null) weapon = GetComponentInChildren<WeaponBase>();
         }
+        protected virtual void OnEnable()
+        {
+            GlobalUpdater.TryGetInstance(true).RegisterUpdate(Tick);
+        }
+        protected virtual void OnDisable()
+        {
+            GlobalUpdater.TryGetInstance().UnregisterUpdate(Tick);
+        }
+        #endregion
+
+        #region Functionality
+
         public bool IsInAngle(Vector3 position)
         {
             var dir = (position - Transform.position).normalized;
@@ -35,37 +49,119 @@ namespace Weapons
 
             return true;
         }
+
         public Vector3 ComputeTargetingPosition(IObject target)
         {
             float timeToHit = 0;
-            var m = weapon.BulletData as MissileData;
+            var m = weapon.BulletData as ProjectileData;
             if (m != null) timeToHit = (target.Transform.position - Transform.position).magnitude / m.TopSpeed;
 
             var futureTargetPos = target.GetPositionWithOscilation(Owner) + target.LinearVelocity * timeToHit;
 
             return futureTargetPos;
         }
+
+        protected bool IsTargetValid(IObject target)
+        {
+            if (target == null) return false;
+            if (!IsInAngle(target.Transform.position)) return false;
+
+            var dir = target.Transform.position - Transform.position;
+            if (dir.sqrMagnitude > MaxRangeSquared) return false;
+
+            return true;
+        }
+
         public void UpdateTargets()
         {
             if (Owner == null) return;
             if (Target != null && !Target.Transform.gameObject.activeSelf) Target = null;
-            var targets = Owner.GetTargets();
-            if (targets.IsEmpty()) return;
 
-            float bestScore = @params.EvaluateTarget(this, Target);
-            for (int i = 0; i < targets.Count; i++)
+            float bestScore = Target == null ? 0 : @params.EvaluateTarget(this, Target);
+
+            #region Evaluate missiles
+            if (@params.TargetMissiles)
             {
-                var score = @params.EvaluateTarget(this, targets[i]);
-                if (score <= 0) return;
-
-                if (score > bestScore + @params.MinScoreDelta)
+                (var count, var missiles) = Owner.GetMissiles();
+                if (count > 0)
                 {
-                    bestScore = score;
-                    Target = targets[i];
+                    var currentM = Target as Missile;
+                    bool targetIsAimedAtOwner = currentM != null && currentM.Target.
+                        IsEqual(Owner);
+
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (missiles[i] == null) continue;
+                        var m = missiles[i].transform.GetComponentViaRegister<Missile>();
+                        if (m == null || !IsTargetValid(m)) continue;
+
+                        if (Target == null)
+                        {
+                            targetIsAimedAtOwner = m.Target.IsEqual(Owner);
+                            Target = m;
+                            bestScore = @params.EvaluateTarget(this, m);
+                        }
+                        else
+                        {
+                            if (targetIsAimedAtOwner)
+                            {
+                                if (m.Target.IsEqual(Owner))
+                                {
+                                    var newScore = @params.EvaluateTarget(this, m);
+                                    if (newScore > bestScore)
+                                    {
+                                        bestScore = newScore;
+                                        Target = m;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var newScore = @params.EvaluateTarget(this, m);
+                                if (m.Target.IsEqual(Owner))
+                                {
+                                    bestScore = newScore;
+                                    Target = m;
+                                    targetIsAimedAtOwner = true;
+                                }
+                                else if (newScore > bestScore)
+                                {
+                                    bestScore = newScore;
+                                    Target = m;
+                                }
+                            }
+                        }
+                    }
+
+                    if (targetIsAimedAtOwner) return;
                 }
             }
+            #endregion
 
+            #region Evaluate regular targets
+            if (@params.TargetUnits)
+            {
+                var targets = Owner.GetTargets();
+                if (targets.IsEmpty()) return;
+
+                for (int i = 0; i < targets.Count; i++)
+                {
+                    if (!IsTargetValid(targets[i])) continue;
+
+                    var score = @params.EvaluateTarget(this, targets[i]);
+                    if (score <= 0) return;
+
+                    if (score > bestScore + @params.MinScoreDelta)
+                    {
+                        bestScore = score;
+                        Target = targets[i];
+                    }
+                }
+            }
+            #endregion
         }
+
         public void Tick(float deltaTime)
         {
             if (Target != null)
@@ -93,15 +189,18 @@ namespace Weapons
             }
             DecreaseReadiness(deltaTime);
         }
+
         protected void IncreaseReadiness(float deltaTime)
         {
             weapon.IncreaseReadiness(deltaTime);
         }
+
         protected void DecreaseReadiness(float deltaTime)
         {
             weapon.DecreaseReadiness(deltaTime);
             RotateToIdle(deltaTime);
         }
+
         protected void RotateToIdle(float deltaTime)
         {
             if (RotationPivot.rotation == Quaternion.identity && ElevationPivot.rotation == Quaternion.identity) return;
@@ -123,6 +222,12 @@ namespace Weapons
                 ElevationPivot.rotation = elevTargetRot;
             }
         }
+
+        /// <summary>
+        /// Rotate towards a given position. Performs no checks to see if that is possible.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="deltaTime"></param>
         protected void LookAt(Vector3 position, float deltaTime)
         {
             Vector3 direction = position - Transform.position;
@@ -135,6 +240,7 @@ namespace Weapons
                 else RotateSeparate(direction.normalized, deltaTime);
             }
         }
+
         protected void RotateUnified(Vector3 direction, float deltaTime)
         {
             var newRotation = Quaternion.LookRotation(direction, Transform.up);
@@ -149,6 +255,7 @@ namespace Weapons
 
             RotationPivot.localRotation = Quaternion.Euler(targetPitch, targetYaw, 0);
         }
+
         protected void RotateSeparate(Vector3 direction, float deltaTime)
         {
             var newRotation = Quaternion.LookRotation(direction, Transform.up);
@@ -169,5 +276,6 @@ namespace Weapons
             //var targetPitch=Mathf.Clamp(ElevationPivot.localRotation.x,)
             ElevationPivot.localRotation = Quaternion.Euler(targetPitch, 0, 0);
         }
+        #endregion
     }
 }

@@ -24,17 +24,20 @@ namespace Weapons
             Debug.Assert((!shootPoints.IsEmpty() && shootPoints[0] != null), $"{transform} has invalid shoot points!");
             shotTimer = new(@params.MaxShotCooldown);
         }
+
         protected virtual void OnEnable()
         {
             PerformReset();
         }
+
         /// <summary>
-        /// Reset the ammo, cooldown and cast block index of the weapon.
+        /// Reset cooldown.
         /// </summary>
         public virtual void PerformReset()
         {
             shotTimer.Reset(@params.MaxShotCooldown);
         }
+
         protected virtual void OnDestroy()
         {
             shotTimer.Dispose();
@@ -47,11 +50,13 @@ namespace Weapons
             currentShotCooldown = Mathf.Max(@params.MinShotCooldown,
                 currentShotCooldown - @params.RateOfFireRampUp);
         }
+
         public virtual void DecreaseReadiness(float deltaTime)
         {
             currentShotCooldown = Mathf.Min(@params.MaxShotCooldown,
                 currentShotCooldown + @params.RateOfFireRampDown);
         }
+
         public virtual bool CanShoot()
         {
             return !shotTimer.IsRunning;
@@ -65,6 +70,7 @@ namespace Weapons
             shotTimer.Start();
             return true;
         }
+
         /// <summary>
         /// Fire once.
         /// </summary>
@@ -75,12 +81,12 @@ namespace Weapons
                 ProcessBullet(@params.GetInstance(shootPoints[i]), target);
             }
         }
+
         public virtual void ProcessBullet(Bullet bullet, IObject target)
         {
             bullet.Owner = transform.root;
             bullet.gameObject.SetActive(true);
         }
-
         #endregion
     }
 }

@@ -5,15 +5,26 @@ namespace Utilities
 {
     public static class Extensions
     {
+        #region IObject
+        public static bool IsEqual(this IObject @object, IObject other)
+        {
+            if (@object == null && other == null) return true;
+            if (@object == null || other == null) return false;
+            return @object.Transform.GetInstanceID() == other.Transform.GetInstanceID();
+        }
+
         public static Vector3 GetPositionWithOscilation(this IObject @object, Unit scanner)
         {
             var dist = Mathf.Max((scanner.Transform.position - @object.Transform.position).sqrMagnitude - @object.Signature - scanner.ScanRange, 0);
             return @object.Transform.position + dist * Random.insideUnitSphere;
         }
+        #endregion
+
         public static bool IsEmpty<T>(this ICollection<T> collection)
         {
             return collection == null || collection.Count == 0;
         }
+
         /// <summary>
         /// If an angle is > 180, will subtract 360. If it is < 180, will add 360.
         /// </summary>
@@ -25,6 +36,7 @@ namespace Utilities
             if (angle < -180) angle += 360f;
             return angle;
         }
+
         public static Vector3 Perpendicular(this Vector3 inputVector, bool normalize = true)
         {
             if (inputVector == Vector3.zero) return Vector3.zero;

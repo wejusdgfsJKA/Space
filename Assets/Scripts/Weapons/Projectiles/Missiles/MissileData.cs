@@ -4,7 +4,7 @@ namespace Weapons
     [CreateAssetMenu(menuName = "Weapons/Missile Data", fileName = "Missile Data")]
     public class MissileData : ProjectileData
     {
-        public float Tracking, MaxTargetSignature, HP = 1;
+        public float Tracking, MaxTargetSignature, MaxTelemetryBonus = 0.7f, HP = 1;
         protected override void OnValidate()
         {
             base.OnValidate();

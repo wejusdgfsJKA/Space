@@ -32,7 +32,7 @@ namespace HP
         {
             return EventBus<DamageInfo>.Raise(transform.GetInstanceID(), damageInfo);
         }
-        private void OnEnable()
+        protected void OnEnable()
         {
             PerformReset();
         }

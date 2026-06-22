@@ -1,10 +1,13 @@
 using HP;
 using UnityEngine;
+using Utilities;
 namespace Weapons
 {
     [RequireComponent(typeof(HPComponent))]
+    [RequireComponent(typeof(Collider))]
     public class Missile : Projectile
     {
+        #region Fields
         protected IObject target;
         public IObject Target
         {
@@ -22,35 +25,50 @@ namespace Weapons
                 }
             }
         }
-        protected float initialTracking, maxTargetSignature;
+        protected float initialTracking, maxTargetSignature, maxTelemetryBonus;
         public int Index { get; set; }
         protected HPComponent hpComponent;
         public float EffectiveTracking { get; protected set; }
-        protected float Telemetry()
+        #endregion
+
+        #region Setup
+        protected override void OnEnable()
         {
-            if (Owner == null) return 0;
-            return Mathf.Max(0, Vector3.Dot(Owner.forward, (target.Transform.position -
-                Owner.position).normalized));
+            base.OnEnable();
+            ComponentRegister<Missile>.Register(Transform, this);
         }
+
+        protected override void OnDisable()
+        {
+            Target = null;
+            ComponentRegister<Missile>.Unregister(Transform);
+            base.OnDisable();
+        }
+
         public override void Initialize(BulletData poolableData)
         {
             base.Initialize(poolableData);
             if (poolableData is not MissileData missileData)
             {
-                throw new System.ArgumentException($"Expected {typeof(MissileData)}, got {poolableData.GetType()}");
+                throw new System.ArgumentException($"Expected {typeof(MissileData)}, " +
+                    $"got {poolableData.GetType()}");
             }
             initialTracking = missileData.Tracking;
-
             if (hpComponent == null) hpComponent = GetComponent<HPComponent>();
             hpComponent.MaxHP = missileData.HP;
-
             maxTargetSignature = missileData.MaxTargetSignature;
+            maxTelemetryBonus = missileData.MaxTelemetryBonus;
         }
-        protected override void OnDisable()
+        #endregion
+
+        #region Functionality
+        protected float Telemetry()
         {
-            Target = null;
-            base.OnDisable();
+            if (Owner == null) return 0;
+            return Mathf.Max(0, Mathf.Min(maxTelemetryBonus, Vector3.Dot(Owner.forward,
+                (target.Transform.position - Owner.position).normalized)));
         }
+
         protected void CalculateEffectiveTracking()
         {
             if (Target == null)
@@ -62,6 +80,7 @@ namespace Weapons
             EffectiveTracking = initialTracking * (1 + Telemetry()) *
                 Mathf.Min(1, target.Signature / maxTargetSignature);
         }
+
         protected override void RestOfPerformUpdate(float dt)
         {
             if (target != null && target.Transform.gameObject.activeInHierarchy == false)
@@ -90,5 +109,6 @@ namespace Weapons
             linearVelocity += acceleration * dt * tr.forward;
             linearVelocity = Vector3.ClampMagnitude(linearVelocity, topSpeed);
         }
+        #endregion
     }
 }

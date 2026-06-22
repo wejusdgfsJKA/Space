@@ -1,8 +1,10 @@
 using AudioSystem;
+using EventBus;
 using Pooling;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Utilities;
+
 namespace Weapons
 {
     public class Bullet : MonoBehaviour, IOwnable
@@ -31,6 +33,8 @@ namespace Weapons
             return objectPool.Get(bulletType, out bullet);
         }
         #endregion
+
+        #region Fields
         protected Type poolKey;
         protected DamageInfo damageInfo = new();
         public Transform Owner
@@ -45,7 +49,11 @@ namespace Weapons
             }
             set
             {
-                damageInfo.Source = value;
+                if (value != damageInfo.Source)
+                {
+                    damageInfo.Source = value;
+                    gameObject.layer = GlobalConfig.GetBulletLayer(value != null ? value.gameObject.layer : 0);
+                }
             }
         }
         protected Transform tr;
@@ -53,17 +61,23 @@ namespace Weapons
         protected SoundData soundData;
         protected bool disableOnHit = true;
         protected float lifeTime;
+        #endregion
+
+        #region Setup
         protected virtual void Awake()
         {
             tr = transform;
             ComponentRegister<IOwnable>.Register(tr, this);
         }
+
         protected virtual void OnEnable()
         {
             if (soundData != null && soundData.clip != null) SoundManager.TryGetInstance(true).Play(soundData, tr.position);
             else Debug.LogWarning($"{transform} has no sound data!");
             GlobalUpdater.TryGetInstance(true).RegisterUpdate(PerformUpdate);
+            EventBus<UnitDestroyed>.AddActions(Owner.transform.GetInstanceID(), ClearOwner);
         }
+
         public virtual void Initialize(BulletData poolableData)
         {
             disableOnHit = poolableData.DisableOnHit;
@@ -71,6 +85,26 @@ namespace Weapons
             lifeTime = poolableData.LifeTime;
             soundData = poolableData.SoundData;
         }
+
+        public void ClearOwner(UnitDestroyed @event)
+        {
+            if (@event.DeleteOwnership) damageInfo.Source = null;
+        }
+        protected virtual void OnDisable()
+        {
+            EventBus<UnitDestroyed>.RemoveActions(Owner.transform.GetInstanceID(), ClearOwner);
+            Owner = null;
+            GlobalUpdater.TryGetInstance().UnregisterUpdate(PerformUpdate);
+            Release(this);
+        }
+
+        protected virtual void OnDestroy()
+        {
+            ComponentRegister<IOwnable>.Unregister(tr);
+        }
+        #endregion
+
+        #region Functionality
         protected virtual void PerformUpdate(float dt)
         {
             lifeTime -= dt;
@@ -79,19 +113,12 @@ namespace Weapons
                 gameObject.SetActive(false);
             }
         }
-        protected virtual void OnDestroy()
-        {
-            ComponentRegister<IOwnable>.Unregister(tr);
-        }
-        protected virtual void OnDisable()
-        {
-            GlobalUpdater.TryGetInstance().UnregisterUpdate(PerformUpdate);
-            Release(this);
-        }
+
         protected virtual void OnHit(Collider collider)
         {
             collider.transform.root.TakeDamage(damageInfo);
             if (disableOnHit) gameObject.SetActive(false);
         }
+        #endregion
     }
 }

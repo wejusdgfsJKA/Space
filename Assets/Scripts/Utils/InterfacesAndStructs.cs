@@ -17,10 +17,21 @@ public struct DamageInfo : IEvent
     public float Amount { get; set; }
     public Transform Source { get; set; }
 }
+
+public readonly struct UnitDestroyed : IEvent
+{
+    public readonly bool DeleteOwnership;
+    public UnitDestroyed(bool deleteOwnership)
+    {
+        DeleteOwnership = deleteOwnership;
+    }
+}
+
 public interface IResettable
 {
     void PerformReset();
 }
+
 public interface IOwnable : IRegisterableComponent
 {
     Transform Owner { get; }
