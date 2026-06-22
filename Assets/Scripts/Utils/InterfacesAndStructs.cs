@@ -20,11 +20,12 @@ public struct DamageInfo : IEvent
 
 public readonly struct UnitDestroyed : IEvent
 {
-    public readonly bool DeleteOwnership;
-    public UnitDestroyed(bool deleteOwnership)
-    {
-        DeleteOwnership = deleteOwnership;
-    }
+
+}
+
+public readonly struct PoolableRecycled : IEvent
+{
+
 }
 
 public interface IResettable

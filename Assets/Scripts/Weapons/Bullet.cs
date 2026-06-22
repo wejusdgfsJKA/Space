@@ -75,7 +75,7 @@ namespace Weapons
             if (soundData != null && soundData.clip != null) SoundManager.TryGetInstance(true).Play(soundData, tr.position);
             else Debug.LogWarning($"{transform} has no sound data!");
             GlobalUpdater.TryGetInstance(true).RegisterUpdate(PerformUpdate);
-            EventBus<UnitDestroyed>.AddActions(Owner.transform.GetInstanceID(), ClearOwner);
+            EventBus<PoolableRecycled>.AddActions(Owner.transform.GetInstanceID(), null, ClearOwner);
         }
 
         public virtual void Initialize(BulletData poolableData)
@@ -86,13 +86,14 @@ namespace Weapons
             soundData = poolableData.SoundData;
         }
 
-        public void ClearOwner(UnitDestroyed @event)
+        public void ClearOwner()
         {
-            if (@event.DeleteOwnership) damageInfo.Source = null;
+            damageInfo.Source = null;
         }
+
         protected virtual void OnDisable()
         {
-            EventBus<UnitDestroyed>.RemoveActions(Owner.transform.GetInstanceID(), ClearOwner);
+            EventBus<PoolableRecycled>.RemoveActions(Owner.transform.GetInstanceID(), null, ClearOwner);
             Owner = null;
             GlobalUpdater.TryGetInstance().UnregisterUpdate(PerformUpdate);
             Release(this);
