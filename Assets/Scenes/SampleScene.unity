@@ -379,16 +379,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3316b3881595c5b45800179464ecd93d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapons.Turret
-  Target: {fileID: 2089830648}
   weapon: {fileID: 1125567809}
-  rotationPivot: {fileID: 98297786}
-  elevationPivot: {fileID: 2122553033}
-  rotSpeed: 40
-  minElevation: 0
-  maxElevation: 90
-  minRot: -190
-  maxRot: 190
-  maxErrorAngle: 1
+  <RotationPivot>k__BackingField: {fileID: 98297786}
+  <ElevationPivot>k__BackingField: {fileID: 2122553033}
+  params: {fileID: 0}
 --- !u!114 &1125567809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -655,6 +649,7 @@ MonoBehaviour:
   <Team>k__BackingField: 1
   signature: 0
   defaultSignature: 0
+  <ScanRange>k__BackingField: 0
   topSpeed: 5
   acceleration: 1
   rotationSpeed: 5

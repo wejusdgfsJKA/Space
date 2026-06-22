@@ -2,9 +2,9 @@ using UnityEngine;
 namespace Weapons
 {
     [CreateAssetMenu(menuName = "Weapons/Missile Data", fileName = "Missile Data")]
-    public class MissileData : BulletData
+    public class MissileData : ProjectileData
     {
-        public float Tracking, MaxTargetSignature, TopSpeed, Acceleration, HP = 1;
+        public float Tracking, MaxTargetSignature, HP = 1;
         protected override void OnValidate()
         {
             base.OnValidate();

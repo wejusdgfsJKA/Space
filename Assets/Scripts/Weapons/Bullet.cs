@@ -60,9 +60,9 @@ namespace Weapons
         }
         protected virtual void OnEnable()
         {
-            if (soundData != null && soundData.clip != null) SoundManager.Instance.Play(soundData, tr.position);
+            if (soundData != null && soundData.clip != null) SoundManager.TryGetInstance(true).Play(soundData, tr.position);
             else Debug.LogWarning($"{transform} has no sound data!");
-            GlobalUpdater.Instance.RegisterUpdate(PerformUpdate);
+            GlobalUpdater.TryGetInstance(true).RegisterUpdate(PerformUpdate);
         }
         public virtual void Initialize(BulletData poolableData)
         {
@@ -85,7 +85,7 @@ namespace Weapons
         }
         protected virtual void OnDisable()
         {
-            GlobalUpdater.Instance.UnregisterUpdate(PerformUpdate);
+            GlobalUpdater.TryGetInstance().UnregisterUpdate(PerformUpdate);
             Release(this);
         }
         protected virtual void OnHit(Collider collider)

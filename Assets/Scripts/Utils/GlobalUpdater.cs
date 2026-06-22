@@ -2,11 +2,12 @@ using System;
 using UnityEngine;
 namespace Utilities
 {
-    public sealed class GlobalUpdater : PersistentSingleton<GlobalUpdater>
+    public sealed class GlobalUpdater : Singleton<GlobalUpdater>
     {
         Action<float> update = delegate { }, lateUpdate = delegate { }, fixedUpdate = delegate { };
-        void OnDisable()
+        protected override void ClearSingleton()
         {
+            base.ClearSingleton();
             update = fixedUpdate = lateUpdate = null;
         }
         public void RegisterUpdate(Action<float> action) => update += action;

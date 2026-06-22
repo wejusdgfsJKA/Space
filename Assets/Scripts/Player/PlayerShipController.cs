@@ -69,9 +69,9 @@ namespace Player
             inputReader.ZoomEvent += OnZoom;
             inputReader.ResetEvent += OnResetCamera;
             inputReader.FreeLookToggleEvent += OnFreeLookToggle;
-            GlobalUpdater.Instance.RegisterFixedUpdate(PerformFixedUpdate);
-            GlobalUpdater.Instance.RegisterUpdate(PerformUpdate);
-            GlobalUpdater.Instance.RegisterLateUpdate(PerformLateUpdate);
+            GlobalUpdater.TryGetInstance(true).RegisterFixedUpdate(PerformFixedUpdate);
+            GlobalUpdater.TryGetInstance(true).RegisterUpdate(PerformUpdate);
+            GlobalUpdater.TryGetInstance(true).RegisterLateUpdate(PerformLateUpdate);
             OnResetCamera();
             currentShipBodyAngles = shipBody.localRotation.eulerAngles;
         }
@@ -80,9 +80,9 @@ namespace Player
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             inputReader.DisablePlayerActions();
-            GlobalUpdater.Instance.UnregisterFixedUpdate(PerformFixedUpdate);
-            GlobalUpdater.Instance.UnregisterUpdate(PerformUpdate);
-            GlobalUpdater.Instance.UnregisterLateUpdate(PerformLateUpdate);
+            GlobalUpdater.TryGetInstance().UnregisterFixedUpdate(PerformFixedUpdate);
+            GlobalUpdater.TryGetInstance().UnregisterUpdate(PerformUpdate);
+            GlobalUpdater.TryGetInstance().UnregisterLateUpdate(PerformLateUpdate);
         }
         #endregion
 
