@@ -50,13 +50,15 @@ public class Unit : MonoBehaviour, IRegisterableComponent, IObject
         buffer = new Collider[GlobalConfig.MaxMissileCheckBufferSize];
         signature = defaultSignature;
         UnitManager.Register(this);
+        this.RegisterForRadar();
     }
     protected virtual void OnDisable()
     {
         if (coroutine != null) StopCoroutine(coroutine);
         UnitManager.Unregister(this);
+        this.UnregisterForRadar();
         buffer = null;
-        EventBus<UnitDestroyed>.Raise(Transform.GetInstanceID(), new(deleteOwnershipOnDeath));
+        EventBus<UnitDestroyed>.Raise(Extensions.GetInstanceID(this), new());
     }
     protected virtual void OnDestroy()
     {

@@ -10,6 +10,7 @@ namespace Weapons
         public Vector3 AngularVelocity => Vector3.zero;
         public float Signature => 0;
         protected LayerMask collisionMask = 1 << 0 | 1 << 6;
+
         public override void Initialize(BulletData poolableData)
         {
             base.Initialize(poolableData);
@@ -30,6 +31,7 @@ namespace Weapons
                 acceleration = topSpeed / 10;
             }
         }
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -41,18 +43,29 @@ namespace Weapons
             collisionMask = GlobalConfig.GetBulletCollisionMask(gameObject.layer);
 
             angularVelocity = Vector3.zero;
+
+            this.RegisterForRadar();
         }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            this.UnregisterForRadar();
+        }
+
         protected override void PerformUpdate(float dt)
         {
             base.PerformUpdate(dt);
             if (!CheckCollisions(dt)) RestOfPerformUpdate(dt);
         }
+
         protected virtual void RestOfPerformUpdate(float dt)
         {
             linearVelocity += acceleration * dt * tr.forward;
             linearVelocity = Vector3.ClampMagnitude(linearVelocity, topSpeed);
             tr.position += dt * linearVelocity;
         }
+
         protected virtual bool CheckCollisions(float dt)
         {
             if (Physics.Raycast(tr.position, linearVelocity, out RaycastHit hit,

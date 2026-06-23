@@ -4,7 +4,7 @@ using Utilities;
 namespace Weapons
 {
     [RequireComponent(typeof(HPComponent))]
-    [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(SphereCollider))]
     public class Missile : Projectile
     {
         #region Fields

@@ -1,4 +1,5 @@
 using HP;
+using Radar;
 using System.Collections.Generic;
 using UnityEngine;
 namespace Utilities
@@ -6,11 +7,32 @@ namespace Utilities
     public static class Extensions
     {
         #region IObject
+        public static void RegisterForRadar(this IObject @object)
+        {
+            if (@object == null) throw new System.ArgumentNullException();
+
+            var r = RadarSystem.TryGetInstance();
+            if (r != null) r.RegisterTarget(@object);
+        }
+
+        public static void UnregisterForRadar(this IObject @object)
+        {
+            if (@object == null) throw new System.ArgumentNullException();
+
+            var r = RadarSystem.TryGetInstance();
+            if (r != null) r.UnregisterTarget(@object);
+        }
+
+        public static int GetInstanceID(this IObject @object)
+        {
+            return @object.Transform.GetInstanceID();
+        }
+
         public static bool IsEqual(this IObject @object, IObject other)
         {
             if (@object == null && other == null) return true;
             if (@object == null || other == null) return false;
-            return @object.Transform.GetInstanceID() == other.Transform.GetInstanceID();
+            return @object.GetInstanceID() == other.GetInstanceID();
         }
 
         public static Vector3 GetPositionWithOscilation(this IObject @object, Unit scanner)
@@ -65,6 +87,7 @@ namespace Utilities
 
             return percentage ? comp.CurrentHPPercentage : comp.CurrentHP;
         }
+
         public static int GetTeam(this Transform transform, bool throwOnNullTransform = true, int defaultValue = -1)
         {
             if (transform == null)
@@ -75,11 +98,13 @@ namespace Utilities
             var ship = ComponentRegister<Unit>.Get(transform);
             return ship != null ? ship.Team : defaultValue;
         }
+
         public static T GetComponentViaRegister<T>(this Transform transform) where T : Component, IRegisterableComponent
         {
             if (transform == null) throw new System.ArgumentNullException();
             return ComponentRegister<T>.Get(transform);
         }
+
         public static T GetOrAddRegisterableComponent<T>(this Transform transform) where T : Component, IRegisterableComponent
         {
             if (transform == null) throw new System.ArgumentNullException();
@@ -95,6 +120,7 @@ namespace Utilities
             }
             return component;
         }
+
         public static T GetOrAddComponent<T>(this Transform transform) where T : Component
         {
             if (transform == null) throw new System.ArgumentNullException();

@@ -9,6 +9,7 @@ public interface IObject : IRegisterableComponent
 {
     float Signature { get; }
     Transform Transform { get; }
+    public Vector3 Position => Transform.position;
     Vector3 AngularVelocity { get; }
     Vector3 LinearVelocity { get; }
 }
