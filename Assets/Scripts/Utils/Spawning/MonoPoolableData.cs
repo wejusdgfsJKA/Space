@@ -1,12 +1,11 @@
 using EventBus;
 using UnityEngine;
 
-namespace Pooling
+namespace Spawning
 {
-    public abstract class MonoPoolableData<K, T> : ScriptableObject where T : MonoBehaviour
+    public abstract class MonoPoolableData<K, T> : MonoSpawnableData<T> where T : MonoBehaviour
     {
         public K Key;
-        public T Prefab;
 
         public T GetInstance(Transform point) => GetInstance(point.position, point.rotation);
 

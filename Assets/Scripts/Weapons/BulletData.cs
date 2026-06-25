@@ -1,5 +1,5 @@
 using AudioSystem;
-using Pooling;
+using Spawning;
 using UnityEngine;
 namespace Weapons
 {
@@ -14,7 +14,7 @@ namespace Weapons
         {
             if (!Bullet.Get(Key, out Bullet instance))
             {
-                instance = Instantiate(Prefab);
+                instance = CreateInstance();
             }
             instance.Initialize(this);
             return instance;

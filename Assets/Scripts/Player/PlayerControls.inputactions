@@ -239,6 +239,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "UI",
+            "id": "ccec6c10-f61b-4382-ad3a-9d25fd81cdf2",
+            "actions": [
+                {
+                    "name": "Escape",
+                    "type": "Button",
+                    "id": "ee89a178-c647-4824-b622-3cf5a5949dd7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f78cdaa2-7bc1-4ea2-b798-1d96b44eafb3",
+                    "path": "*/{Back}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Escape",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

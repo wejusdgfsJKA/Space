@@ -1,22 +1,30 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using static PlayerControls;
 namespace Player
 {
-    [CreateAssetMenu(fileName = "InputReader", menuName = "ScriptableObjects/InputReader")]
-    public class InputReader : ScriptableObject, IBasicControlsActions
+
+    [CreateAssetMenu(fileName = "ControlsInputReader", menuName = "ScriptableObjects/ControlsInputReader")]
+    public class ControlsInputReader : ScriptableObject, PlayerControls.IBasicControlsActions
     {
         public PlayerControls inputActions;
         public Vector2 LookDelta => inputActions.BasicControls.MouseLook.ReadValue<Vector2>();
         public event UnityAction<Vector3> MoveEvent = delegate { };
-        public event UnityAction<float> RollEvent = delegate { }, FreeLookToggleEvent = delegate { }, ZoomEvent = delegate { };
+        public event UnityAction<float> RollEvent = delegate { }
+        ,
+            FreeLookToggleEvent = delegate { }
+        , ZoomEvent = delegate { };
         public event UnityAction ResetEvent = delegate { };
         public void EnablePlayerActions()
         {
             inputActions ??= new PlayerControls();
             inputActions.BasicControls.SetCallbacks(this);
             inputActions.Enable();
+            MoveEvent ??= delegate { };
+            RollEvent ??= delegate { };
+            FreeLookToggleEvent ??= delegate { };
+            ZoomEvent ??= delegate { };
+            ResetEvent ??= delegate { };
         }
 
         public void DisablePlayerActions()

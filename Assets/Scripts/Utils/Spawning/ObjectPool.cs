@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 
-namespace Pooling
+namespace Spawning
 {
     public class ObjectPool<Key, Object>
     {
@@ -13,6 +13,13 @@ namespace Pooling
             pool[key].Enqueue(obj);
         }
 
+        /// <summary>
+        /// Tries to get an object out of the pool. Will NOT create a new object if the 
+        /// pool is empty, use MonoPoolableData for that.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public bool Get(Key key, out Object obj)
         {
             if (!pool.ContainsKey(key) || pool[key].Count == 0)

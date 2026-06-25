@@ -10,7 +10,7 @@ namespace Player
         Quaternion baseRotation;
         float camXAngle, camYAngle;
         [SerializeField] float rotSpeed = 30;
-        [SerializeField] private InputReader inputReader;
+        [SerializeField] private ControlsInputReader inputReader;
         [SerializeField] Transform shipBody;
         [Header("Camera")]
         [SerializeField] float xSens = 10;

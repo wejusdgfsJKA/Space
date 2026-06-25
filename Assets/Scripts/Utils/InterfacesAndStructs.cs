@@ -19,15 +19,15 @@ public struct DamageInfo : IEvent
     public Transform Source { get; set; }
 }
 
-public readonly struct UnitDestroyed : IEvent
+public readonly struct MissionOver : IEvent
 {
-
+    public readonly bool Failed;
+    public MissionOver(bool failed) => Failed = failed;
 }
 
-public readonly struct PoolableRecycled : IEvent
-{
+public readonly struct UnitDestroyed : IEvent { }
 
-}
+public readonly struct PoolableRecycled : IEvent { }
 
 public interface IResettable
 {
