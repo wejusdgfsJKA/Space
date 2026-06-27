@@ -8,14 +8,8 @@ namespace Player
             if (windows.Count == 1) initialWindows[1].Open();
             else base.Pop();
         }
-        public void Play()
-        {
-            //GameManager.Load();
-            //Debug.Log("Playing");
-        }
         public void Quit()
         {
-            //GameManager.Save();
             Application.Quit();
         }
     }

@@ -8,7 +8,7 @@ namespace Player
         protected Stack<Window> windows = new();
         [SerializeField] protected Window[] initialWindows;
         public Window Top => windows.Peek();
-        protected void OnEnable()
+        protected virtual void OnEnable()
         {
             inputReader.EnablePlayerActions();
             inputReader.OnEscapeEvent += Pop;
@@ -20,7 +20,7 @@ namespace Player
                 }
             }
         }
-        protected void OnDisable()
+        protected virtual void OnDisable()
         {
             inputReader.DisablePlayerActions();
             while (windows.Count > 0) Pop(true);

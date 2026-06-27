@@ -6,6 +6,9 @@ namespace HP
     public class HPComponent : MonoBehaviour, IResettable
     {
         [SerializeField] protected float maxHP;
+        public float CurrentHP { get; protected set; }
+        protected Transform tr;
+
         public float MaxHP
         {
             get => maxHP;
@@ -19,23 +22,40 @@ namespace HP
                 maxHP = value;
             }
         }
-        public float CurrentHP { get; protected set; }
+
+        public Transform Transform
+        {
+            get
+            {
+                if (tr == null)
+                {
+                    tr = GetComponent<Transform>();
+                }
+                return tr;
+            }
+        }
+
         public void PerformReset()
         {
             CurrentHP = MaxHP;
         }
+
         protected virtual void Awake()
         {
+            tr = transform;
             EventBus<DamageInfo>.AddActions(transform.root.GetInstanceID(), TakeDamage);
         }
+
         public static bool TakeDamage(Transform transform, DamageInfo damageInfo)
         {
             return EventBus<DamageInfo>.Raise(transform.GetInstanceID(), damageInfo);
         }
+
         protected void OnEnable()
         {
             PerformReset();
         }
+
         public void TakeDamage(DamageInfo damageInfo)
         {
             if (damageInfo.Source.GetTeam(throwOnNullTransform: false) == transform.root.GetTeam())
@@ -45,10 +65,12 @@ namespace HP
             CurrentHP -= damageInfo.Amount;
             if (CurrentHP <= 0)
             {
-                gameObject.SetActive(false);
+                EventBus<ObjectDestroyed>.Raise(Transform.GetInstanceID(),
+                    new(Transform, damageInfo.Source));
             }
         }
-        private void OnDestroy()
+
+        protected void OnDestroy()
         {
             EventBus<DamageInfo>.RemoveBinding(transform.root.GetInstanceID());
         }

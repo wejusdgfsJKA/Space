@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -7,16 +6,18 @@ using UnityEngine;
 /// </summary>
 public static class GlobalConfig
 {
-    public static string GetSaveFilePath(string fileName)
-    {
-        return Path.Combine(Application.persistentDataPath, fileName);
-    }
+
+    public static string SaveFileLocation => Application.persistentDataPath;
     /// <summary>
     /// This is the size that the buffer is initialized with when checking for missiles.
     /// Might be worth expanding to 100.
     /// </summary>
     public static readonly int MaxMissileCheckBufferSize = 50;
-    public static readonly int EndMissionSceneIndex = 2;
+    /// <summary>
+    /// How many seconds to wait between ending the mission and loading the end mission screen.
+    /// </summary>
+    public static readonly float MissionEndDuration = 3;
+    public static readonly int MissionSceneIndex = 3, EndMissionSceneIndex = 4, LobbySceneIndex = 2;
 
     #region Layers and layer masks
     static readonly Dictionary<int, LayerMask> bulletCollisionMasks = new()
@@ -79,6 +80,32 @@ public static class GlobalConfig
     {
         if (teamColors.TryGetValue(ownerLayer, out var color)) return color;
         return Color.white;
+    }
+    #endregion
+
+    #region Teams
+    public static (Color color, string colorTag) GetTeamColor(int team)
+    {
+        return team switch
+        {
+            1 => (Color.blue, "blue"),
+            2 => (Color.red, "red"),
+            _ => (Color.white, "white"),
+        };
+    }
+
+    static readonly Dictionary<int, int> layerTeamCorrespondence = new()
+    {
+        { 6,1 },{7,1 }, {8,2 },{ 9,2 },{10,10},{0,0}
+    };
+
+    public static int EnemyTeam => 2;
+
+    public static int PlayerTeam => 1;
+
+    public static int GetTeam(int objectLayer)
+    {
+        return layerTeamCorrespondence[objectLayer];
     }
     #endregion
 }

@@ -1,12 +1,12 @@
 using Player;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public static class GameManager
 {
     static GameSave currentSave;
-    public static float PlayerPower { get; private set; } = 0;
-    public static float EnemyPower { get; private set; } = 0;
+    static public readonly List<ObjectDestroyed> UnitsDestroyed = new();
 
     #region Pausing
     public static bool IsPaused => Time.timeScale == 0f;
@@ -33,25 +33,51 @@ public static class GameManager
     }
     #endregion
 
+    public static void AbortMission()
+    {
+        MissionManager.TryGetInstance(true).EndMission();
+    }
+
+    #region Progress
     public static void ResetProgress()
     {
         currentSave = new();
-        //Save("");
+    }
+
+    public static void NewGame()
+    {
+        currentSave = new();
+        LoadLobby();
     }
 
     public static void Load(string fileName)
     {
-        var s = GameSave.Load(GlobalConfig.GetSaveFilePath(fileName));
-        currentSave = s != null ? s.Value : new();
+        var s = GameSave.Load(fileName);
+        currentSave = s ?? new();
+        LoadLobby();
     }
 
-    public static void Save(string fileName)
+    public static void Save()
     {
-        currentSave.Save(GlobalConfig.GetSaveFilePath(fileName));
+        currentSave.Save();
+    }
+    #endregion
+
+    #region Scene loading
+    public static void LoadLobby()
+    {
+        UnitsDestroyed.Clear();
+        SceneManager.LoadScene(GlobalConfig.EndMissionSceneIndex);
+    }
+
+    public static void LoadMission()
+    {
+        SceneManager.LoadScene(GlobalConfig.MissionSceneIndex);
     }
 
     public static void EndMission()
     {
         SceneManager.LoadScene(GlobalConfig.EndMissionSceneIndex);
     }
+    #endregion
 }

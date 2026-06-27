@@ -7,7 +7,7 @@ using UnityEngine;
 using Utilities;
 using Weapons;
 
-public class Unit : MonoBehaviour, IRegisterableComponent, IObject
+public abstract class Unit : MonoBehaviour, IRegisterableComponent, IObject
 {
     #region Fields
     [Tooltip("If true, when this unit is destroyed all its inflight missiles " +
@@ -43,7 +43,9 @@ public class Unit : MonoBehaviour, IRegisterableComponent, IObject
         if (hpComponent != null) hpComponent = GetComponent<HPComponent>();
         ComponentRegister<Unit>.Register(Transform, this);
         foreach (var t in Turrets) onTick += t.UpdateTargets;
+        EventBus<ObjectDestroyed>.AddActions(Extensions.GetInstanceID(this), Die);
     }
+
     protected virtual void OnEnable()
     {
         coroutine = StartCoroutine(Tick());
@@ -52,33 +54,40 @@ public class Unit : MonoBehaviour, IRegisterableComponent, IObject
         UnitManager.Register(this);
         this.RegisterForRadar();
     }
+
     protected virtual void OnDisable()
     {
         if (coroutine != null) StopCoroutine(coroutine);
         UnitManager.Unregister(this);
         this.UnregisterForRadar();
         buffer = null;
-        EventBus<UnitDestroyed>.Raise(Extensions.GetInstanceID(this), new());
     }
+
     protected virtual void OnDestroy()
     {
         onTick = null;
+        EventBus<ObjectDestroyed>.RemoveBinding(Extensions.GetInstanceID(this));
         ComponentRegister<Unit>.Unregister(transform);
     }
     #endregion
 
     #region Functionality
+    public abstract void Die(ObjectDestroyed @event);
+
     protected IEnumerator Tick()
     {
         yield return wait;
         GetSurroundingMissiles();
         onTick?.Invoke();
     }
+
     protected virtual void GetSurroundingMissiles()
     {
         missileCount = Physics.OverlapSphereNonAlloc(Transform.position, ScanRange, buffer, GlobalConfig.GetEnemyBulletCheckMask(gameObject.layer));
     }
+
     public (int, Collider[]) GetMissiles() => (missileCount, buffer);
+
     public List<Unit> GetTargets() => UnitManager.GetTargets(Team);
     #endregion
 }

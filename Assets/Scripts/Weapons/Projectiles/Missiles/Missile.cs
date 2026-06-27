@@ -1,3 +1,4 @@
+using EventBus;
 using HP;
 using UnityEngine;
 using Utilities;
@@ -32,10 +33,22 @@ namespace Weapons
         #endregion
 
         #region Setup
+        protected override void Awake()
+        {
+            base.Awake();
+            EventBus<ObjectDestroyed>.AddActions(Extensions.GetInstanceID(this), Die);
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
             ComponentRegister<Missile>.Register(Transform, this);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            EventBus<ObjectDestroyed>.RemoveBinding(Extensions.GetInstanceID(this));
         }
 
         protected override void OnDisable()
@@ -108,6 +121,11 @@ namespace Weapons
             base.PerformUpdate(dt);
             linearVelocity += acceleration * dt * tr.forward;
             linearVelocity = Vector3.ClampMagnitude(linearVelocity, topSpeed);
+        }
+
+        public void Die(ObjectDestroyed @event)
+        {
+            throw new System.NotImplementedException();
         }
         #endregion
     }

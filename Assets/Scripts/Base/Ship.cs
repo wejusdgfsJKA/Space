@@ -8,6 +8,8 @@ public class Ship : Unit, IRegisterableComponent
     protected Vector3 angularVelocity;
     public override Vector3 AngularVelocity => angularVelocity;
     public override Vector3 LinearVelocity => rb != null ? rb.linearVelocity : Vector3.zero;
+
+    #region Setup
     protected override void Awake()
     {
         base.Awake();
@@ -17,20 +19,29 @@ public class Ship : Unit, IRegisterableComponent
         rb.useGravity = false;
         rb.linearDamping = 0;
     }
+
     protected override void OnEnable()
     {
         base.OnEnable();
         angularVelocity = Vector3.zero;
         rb.linearVelocity = Vector3.zero;
     }
+
     protected override void OnDestroy()
     {
         base.Awake();
         ComponentRegister<IObject>.Unregister(transform);
     }
+    #endregion
+
     protected void ApplyDampeners(Vector3 intendedVelocity, float deltaTime)
     {
         rb.linearVelocity = Vector3.MoveTowards(rb.linearVelocity,
             intendedVelocity, thrust * deltaTime);
+    }
+
+    public override void Die(ObjectDestroyed @event)
+    {
+        throw new System.NotImplementedException();
     }
 }

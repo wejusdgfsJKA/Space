@@ -6,14 +6,17 @@ using UnityEngine;
 public static class UnitManager
 {
     readonly static Dictionary<int, List<Unit>> ships = new();
+
     public static List<Unit> GetShips(int team)
     {
         return ships.ContainsKey(team) ? ships[team].ToList() : null;
     }
+
     public static List<Unit> GetTargets(int myTeam)
     {
         return ships.Where(kv => kv.Key != myTeam).SelectMany(kv => kv.Value).ToList();
     }
+
     public static void Register(Unit ship)
     {
         if (ship == null)
@@ -29,6 +32,7 @@ public static class UnitManager
         ships[team].Add(ship);
         ship.UnitManagerIndex = ships[team].Count - 1;
     }
+
     public static void Unregister(Unit ship)
     {
         if (ship == null) return;

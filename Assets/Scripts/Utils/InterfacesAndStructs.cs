@@ -19,13 +19,27 @@ public struct DamageInfo : IEvent
     public Transform Source { get; set; }
 }
 
-public readonly struct MissionOver : IEvent
+public readonly struct ObjectDestroyed : IEvent
 {
-    public readonly bool Failed;
-    public MissionOver(bool failed) => Failed = failed;
-}
+    public readonly int VictimID, KillerID, VictimTeam, KillerTeam;
+    public readonly string VictimName, KillerName;
 
-public readonly struct UnitDestroyed : IEvent { }
+    public ObjectDestroyed(Transform victim, Transform killer)
+    {
+        VictimID = victim.GetInstanceID();
+        VictimName = victim.name.Replace("(Clone)", "");
+        VictimTeam = GlobalConfig.GetTeam(victim.gameObject.layer);
+        KillerID = killer.GetInstanceID();
+        KillerName = killer.name.Replace("(Clone)", "");
+        KillerTeam = GlobalConfig.GetTeam(killer.gameObject.layer);
+    }
+
+    public override string ToString()
+    {
+        return $"<color={GlobalConfig.GetTeamColor(VictimTeam).colorTag}>{VictimName} " +
+            $"<color=black>destroyed by <color={GlobalConfig.GetTeamColor(KillerTeam).colorTag}> KillerName";
+    }
+}
 
 public readonly struct PoolableRecycled : IEvent { }
 
