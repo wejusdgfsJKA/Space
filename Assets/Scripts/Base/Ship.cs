@@ -1,9 +1,15 @@
+using Effects;
 using Unity.VisualScripting;
 using UnityEngine;
 using Utilities;
-public class Ship : Unit, IRegisterableComponent
+public abstract class Ship : Unit
 {
-    [SerializeField] protected float topSpeed = 5f, acceleration = 1, rotationSpeed = 5, thrust = 1;
+    [Header("Ship")]
+    [SerializeField] protected PoolableEffect effectOnDeath;
+    [SerializeField] protected float maxVelocityMagnitude = 5f;
+    [SerializeField] protected float forwardThrust = 1;
+    [SerializeField] protected float rotationSpeed = 5;
+    [SerializeField] protected float strafeThrust = 1;
     protected Rigidbody rb;
     protected Vector3 angularVelocity;
     public override Vector3 AngularVelocity => angularVelocity;
@@ -34,14 +40,15 @@ public class Ship : Unit, IRegisterableComponent
     }
     #endregion
 
-    protected void ApplyDampeners(Vector3 intendedVelocity, float deltaTime)
-    {
-        rb.linearVelocity = Vector3.MoveTowards(rb.linearVelocity,
-            intendedVelocity, thrust * deltaTime);
-    }
-
     public override void Die(ObjectDestroyed @event)
     {
-        throw new System.NotImplementedException();
+        if (effectOnDeath != null)
+        {
+            if (!PoolableEffect.Get(effectOnDeath.PoolKey, out var e)) e = Instantiate(effectOnDeath);
+            e.transform.position = Transform.position;
+            e.transform.localScale = Transform.localScale;
+            e.gameObject.SetActive(true);
+        }
+        gameObject.SetActive(false);
     }
 }

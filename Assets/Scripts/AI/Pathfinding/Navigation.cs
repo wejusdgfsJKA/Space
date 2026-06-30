@@ -67,7 +67,14 @@ public class Navigation : Ship
 
         angularVelocity = axis * (angleInDegrees * Mathf.Deg2Rad) / deltaTime;
     }
-    void MoveTowards(Vector3 direction, float deltaTime)
+
+    protected void ApplyDampeners(Vector3 intendedVelocity, float deltaTime)
+    {
+        rb.linearVelocity = Vector3.MoveTowards(rb.linearVelocity,
+            intendedVelocity, strafeThrust * deltaTime);
+    }
+
+    protected void MoveTowards(Vector3 direction, float deltaTime)
     {
         if (UpdateRotation) Face(direction, deltaTime);
 
@@ -75,10 +82,10 @@ public class Navigation : Ship
         if (Vector3.Dot(transform.forward, direction) >= Mathf.Cos(Mathf.Deg2Rad *
             angleToForward / 2))
         {
-            rb.AddForce(acceleration * Time.deltaTime * direction.normalized,
+            rb.AddForce(forwardThrust * Time.deltaTime * direction.normalized,
                 ForceMode.Acceleration);
         }
-        rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, topSpeed);
+        rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, maxVelocityMagnitude);
     }
     protected void OnDrawGizmos()
     {

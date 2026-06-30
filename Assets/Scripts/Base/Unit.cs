@@ -7,25 +7,37 @@ using UnityEngine;
 using Utilities;
 using Weapons;
 
-public abstract class Unit : MonoBehaviour, IRegisterableComponent, IObject
+public abstract class Unit : MonoBehaviour, IObject
 {
     #region Fields
+    [Header("Unit")]
     [Tooltip("If true, when this unit is destroyed all its inflight missiles " +
         "will have their owner set to null.")]
     [SerializeField] protected bool deleteOwnershipOnDeath = true;
     public int UnitManagerIndex { get; set; }
-    [field: SerializeField] public int Team { get; set; }
+    public int Team { get; set; }
+    public virtual Vector3 Forward => Transform.forward;
+    public virtual Vector3 Right => Transform.forward;
+    public virtual Vector3 Up => Transform.forward;
     public virtual Vector3 LinearVelocity => Vector3.zero;
     public virtual Vector3 AngularVelocity => Vector3.zero;
     public float Signature => signature;
-    public Transform Transform { get; protected set; }
+    protected Transform tr;
+    public Transform Transform
+    {
+        get
+        {
+            if (tr == null) tr = transform;
+            return tr;
+        }
+    }
     public Vector3 Position => Transform.position;
     [SerializeField] protected float signature, defaultSignature;
     [field: SerializeField] public float ScanRange { get; protected set; }
     protected HPComponent hpComponent;
     public float CurrentHP => hpComponent != null ? hpComponent.CurrentHP : 0;
-    public float CurrentHPPercentage => hpComponent != null ? hpComponent.CurrentHP / hpComponent.MaxHP : 0;
-
+    public float CurrentHPPercentage => hpComponent != null ?
+        hpComponent.CurrentHP / hpComponent.MaxHP : 0;
     [field: SerializeField] public List<Turret> Turrets { get; protected set; } = new();
     protected Action onTick = delegate { };
     protected Collider[] buffer;
@@ -39,7 +51,6 @@ public abstract class Unit : MonoBehaviour, IRegisterableComponent, IObject
     protected virtual void Awake()
     {
         wait = new(tickInterval);
-        Transform = transform;
         if (hpComponent != null) hpComponent = GetComponent<HPComponent>();
         ComponentRegister<Unit>.Register(Transform, this);
         foreach (var t in Turrets) onTick += t.UpdateTargets;

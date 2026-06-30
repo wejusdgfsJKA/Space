@@ -57,7 +57,14 @@ namespace Weapons
             }
         }
         protected Transform tr;
-        public Transform Transform => tr != null ? tr : transform;
+        public Transform Transform
+        {
+            get
+            {
+                if (tr == null) tr = transform;
+                return tr;
+            }
+        }
         protected SoundData soundData;
         protected bool disableOnHit = true;
         protected float lifeTime;
@@ -84,6 +91,7 @@ namespace Weapons
             damageInfo.Amount = poolableData.Damage;
             lifeTime = poolableData.LifeTime;
             soundData = poolableData.SoundData;
+            poolKey = poolableData.Key;
         }
 
         public void ClearOwner()

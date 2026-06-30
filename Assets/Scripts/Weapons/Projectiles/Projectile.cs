@@ -6,6 +6,9 @@ namespace Weapons
     {
         protected float topSpeed, acceleration;
         protected Vector3 linearVelocity, angularVelocity;
+        public Vector3 Forward => Transform.forward;
+        public Vector3 Right => Transform.right;
+        public Vector3 Up => Transform.up;
         public Vector3 LinearVelocity => linearVelocity;
         public Vector3 AngularVelocity => Vector3.zero;
         public float Signature => 0;
@@ -27,7 +30,7 @@ namespace Weapons
             acceleration = data.Acceleration;
             if (acceleration <= 0)
             {
-                Debug.LogWarning($"Missile acceleration should not be 0. Setting acceleration to 10% of top speed on {transform}.");
+                Debug.LogWarning($"Missile forwardThrust should not be 0. Setting forwardThrust to 10% of top speed on {transform}.");
                 acceleration = topSpeed / 10;
             }
         }

@@ -11,7 +11,7 @@ namespace Player
         protected override void OnEnable()
         {
             base.OnEnable();
-            //PopulateText(GameManager.UnitsDestroyed);
+            PopulateText(GameManager.UnitsDestroyed);
         }
 
         public void PopulateText(List<ObjectDestroyed> unitsDestroyed)
@@ -29,7 +29,11 @@ namespace Player
                 }
                 else if (unitsDestroyed[i].VictimTeam == GlobalConfig.EnemyTeam)
                 {
-                    enemyCasualties.text += unitsDestroyed[i] + "\n";
+                    if (unitsDestroyed[i].KillerName.Contains("Player"))
+                    {
+                        playerKills.text += unitsDestroyed[i] + "\n";
+                    }
+                    else enemyCasualties.text += unitsDestroyed[i] + "\n";
                 }
             }
         }

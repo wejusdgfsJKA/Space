@@ -9,6 +9,9 @@ public interface IObject : IRegisterableComponent
 {
     float Signature { get; }
     Transform Transform { get; }
+    public Vector3 Forward { get; }
+    public Vector3 Right { get; }
+    public Vector3 Up { get; }
     public Vector3 Position => Transform.position;
     Vector3 AngularVelocity { get; }
     Vector3 LinearVelocity { get; }
@@ -19,6 +22,9 @@ public struct DamageInfo : IEvent
     public Transform Source { get; set; }
 }
 
+/// <summary>
+/// Fires when an HPComponent reaches 0 hp.
+/// </summary>
 public readonly struct ObjectDestroyed : IEvent
 {
     public readonly int VictimID, KillerID, VictimTeam, KillerTeam;

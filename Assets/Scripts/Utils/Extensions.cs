@@ -137,18 +137,21 @@ namespace Utilities
             IObject velocityProvider = ComponentRegister<IObject>.Get(transform);
             return velocityProvider != null ? velocityProvider.LinearVelocity : Vector3.zero;
         }
+
         public static Vector3 GetAngularVelocity(this Transform transform)
         {
             if (transform == null) throw new System.ArgumentNullException();
             IObject velocityProvider = ComponentRegister<IObject>.Get(transform);
             return velocityProvider != null ? velocityProvider.AngularVelocity : Vector3.zero;
         }
+
         public static (Vector3 linear, Vector3 angular) GetVelocities(this Transform transform)
         {
             if (transform == null) throw new System.ArgumentNullException();
             IObject velocityProvider = ComponentRegister<IObject>.Get(transform);
             return velocityProvider != null ? (velocityProvider.LinearVelocity, velocityProvider.AngularVelocity) : (Vector3.zero, Vector3.zero);
         }
+
         public static bool TakeDamage(this Transform transform, DamageInfo damageInfo)
         {
             if (transform == null) throw new System.ArgumentNullException();

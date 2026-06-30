@@ -1,3 +1,4 @@
+using Effects;
 using EventBus;
 using HP;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace Weapons
         public int Index { get; set; }
         protected HPComponent hpComponent;
         public float EffectiveTracking { get; protected set; }
+        protected PoolableEffect effectOnDeath;
         #endregion
 
         #region Setup
@@ -71,6 +73,7 @@ namespace Weapons
             hpComponent.MaxHP = missileData.HP;
             maxTargetSignature = missileData.MaxTargetSignature;
             maxTelemetryBonus = missileData.MaxTelemetryBonus;
+            effectOnDeath = missileData.Effect;
         }
         #endregion
 
@@ -123,9 +126,20 @@ namespace Weapons
             linearVelocity = Vector3.ClampMagnitude(linearVelocity, topSpeed);
         }
 
+        /// <summary>
+        /// Plays an effectOnDeath if the missile has one. Deactivates the game object.
+        /// </summary>
+        /// <param name="event"></param>
         public void Die(ObjectDestroyed @event)
         {
-            throw new System.NotImplementedException();
+            if (effectOnDeath != null)
+            {
+                if (!PoolableEffect.Get(effectOnDeath.PoolKey, out var e)) e = Instantiate(effectOnDeath);
+                e.transform.position = Transform.position;
+                e.transform.localScale = Transform.localScale;
+                e.gameObject.SetActive(true);
+            }
+            gameObject.SetActive(false);
         }
         #endregion
     }
